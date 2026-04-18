@@ -27,6 +27,18 @@ Create TABLE user_account(
 
 );
 
+CREATE TABLE user_session(
+    session_id INTEGER PRIMARY KEY,
+    account_id INTEGER NOT NULL,
+    login_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    logout_at TEXT NOT NULL,
+    session_status TEXT NOT NULL CHECK( session_status in ('active', 'logged_out', 'suspended', 'expired')),
+    FOREIGN KEY (account_id) REFERENCES user_account(account_id)
+);
+CREATE INDEX idx_user_sessions_account_id ON user_session(account_id);
+CREATE INDEX idx_user_sessions_status ON user_session(session_status);
+CREATE INDEX idx_user_sessions_login_at ON user_session(login_at);
+
 CREATE TABLE category(
     category_id INTEGER PRIMARY KEY,
     category_name TEXT NOT NULL UNIQUE
