@@ -1,10 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>User Profiles</title>
 </head>
 <body>
+    <h1>User Profiles</h1>
+    {% with messages = get_flashed_messages(with_categories = true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p><strong>{{ category }}:</strong> {{ messages }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <p>
+        <a href="{{ url_for('user_profile.create_profile') }}">Create User Profile</a>
+    </p>
 
+    {% if profiles %}
+        <ul>
+            {% for profile in profiles %}
+                <li>
+                    {{ profile.profileName }} - {{ profile.profileDescription }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No user profiles found.</p>
+    {% endif %}
 </body>
 </html>

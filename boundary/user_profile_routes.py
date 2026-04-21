@@ -7,7 +7,7 @@ user_profile_bp = Blueprint("user_profile", __name__)
 
 @user_profile_bp.route("/")
 def home():
-    return redirect(url_for('create_user_profile_controller.list_profiles'))
+    return redirect(url_for('user_profile.list_profiles'))
 
 @user_profile_bp.route("/profiles")
 def list_profiles():
@@ -33,4 +33,4 @@ def create_profile():
 
         flash(message, "error")
 
-        return render_template("profiles/create_profile.html")
+    return render_template("profiles/create_profile.html")
