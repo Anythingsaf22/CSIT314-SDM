@@ -6,27 +6,27 @@ def insert_all_profiles() -> None:
     """
     insert all user profiles (User Admin, Fundraiser, Donor, Platform Management) into the system (for demo purposes).
     """
-    if not UserProfile.profileExists("User Admin"):
+    if not UserProfile.profileExists("User_Admin"):
         UserProfile.saveProfile(
-            "User Admin",
+            "User_Admin",
             "A user who manages user accounts, profiles, and system administration tasks."
         )
 
-    if not UserProfile.profileExists("Fundraiser"):
+    if not UserProfile.profileExists("FUNDRAISER"):
         UserProfile.saveProfile(
-            "Fundraiser",
+            "FUNDRAISER",
             "A user who creates and manages fundraising activities, tracks donor interest, and monitors campaign progress."
         )
 
-    if not UserProfile.profileExists("Donor"):
+    if not UserProfile.profileExists("DONOR"):
         UserProfile.saveProfile(
-            "Donor",
+            "DONOR",
             "A user who searches, views, and saves fundraising activities, and donates to support campaigns."
         )
 
-    if not UserProfile.profileExists("Platform Management"):
+    if not UserProfile.profileExists("Platform_Management"):
         UserProfile.saveProfile(
-            "Platform Management",
+            "Platform_Management",
             "A user who manages fundraising categories and generates platform reports."
         )
 
