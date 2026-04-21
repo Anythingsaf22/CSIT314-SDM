@@ -78,3 +78,25 @@ class UserProfile:
         connection.close()
 
         return [cls.fromRow(row) for row in rows]
+
+    @classmethod
+    def searchProfiles(cls, searchTerm: str) -> List["UserProfile"]:
+        """
+        Search user profiles by name or description
+        """
+        connection = get_connection()
+        keyword = f"%{searchTerm.strip()}%"
+        cursor = connection.execute(
+            """
+            SELECT profile_id, profile_name, profile_desc
+            FROM user_profile
+            WHERE LOWER(profile_name) LIKE LOWER(?)
+                or LOWER(profile_desc) LIKE LOWER(?)
+            ORDER BY profile_id
+            """, #LIKE used for partial matching
+            (keyword, keyword)
+        )
+        rows = cursor.fetchall()
+        connection.close()
+
+        return [cls.fromRow(row) for row in rows]

@@ -11,8 +11,18 @@ def home():
 
 @user_profile_bp.route("/profiles")
 def list_profiles():
-    profiles = UserProfile.getAllProfiles()
-    return render_template("profiles/list_profiles.html", profiles=profiles)
+    search_term = request.args.get("search", "")
+
+    if search_term.strip():
+        profiles = UserProfile.searchProfiles(search_term)
+    else:
+        profiles = UserProfile.getAllProfiles()
+
+    return render_template(
+        "profiles/list_profiles.html",
+        profiles = profiles,
+        search_term = search_term
+    )
 
 
 @user_profile_bp.route("/profiles/create", methods=["GET", "POST"])
