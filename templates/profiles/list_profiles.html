@@ -13,7 +13,7 @@
         {% endif %}
     {% endwith %}
     <p>
-        <a href="{{ url_for('user_profile.create_profile') }}">Create User Profile</a>
+        <a href="{{ url_for('create_user_profile.create_profile') }}">Create User Profile</a>
     </p>
     <form method="get" action="{{ url_for('user_profile.list_profiles') }}">
     <input
