@@ -39,26 +39,28 @@ class UserProfile:
 
 
     @classmethod
-    def saveProfile(cls, profileName: str, profileDescription: str) -> "UserProfile":
+    def createProfile(cls, profileName: str, profileDescription: str):
         """
         Create and store a new user profile in databse.
         """
-        connection = get_connection()
-        cursor = connection.execute(
-            """
-            INSERT INTO user_profile (profile_name, profile_desc)
-            Values (?, ?)
-            """,
-            (profileName.strip(), profileDescription.strip())
-        )
-        connection.commit()
-        new_profile = cls(
-            profileId = cursor.lastrowid,
-            profileName=profileName.strip(),
-            profileDescription=profileDescription.strip()
-        )
-        connection.close()
-        return new_profile
+        if cls.profileExists(profileName):
+            raise ValueError(f"Profile '{profileName}' already exists")
+        else:
+            connection = get_connection()
+            cursor = connection.execute(
+                """
+                INSERT INTO user_profile (profile_name, profile_desc)
+                Values (?, ?)
+                """,
+                (profileName.strip(), profileDescription.strip())
+            )
+            connection.commit()
+            cls(
+                profileId = cursor.lastrowid,
+                profileName=profileName.strip(),
+                profileDescription=profileDescription.strip()
+            )
+            connection.close()
 
     # A method to retrieve all profiles for demo purposes.
     @classmethod
