@@ -15,6 +15,9 @@ class UserProfile:
 
     @classmethod
     def fromRow(cls, row) -> "UserProfile":
+        """
+        Create a UserProfile instance from a database row.
+        """
         return cls(
             profileId = row["profile_id"],
             profileName = row["profile_name"],
@@ -23,7 +26,9 @@ class UserProfile:
 
     @classmethod
     def profileExists(cls, profileName: str) -> bool:
-        """checks if a user profile with the given name exists"""
+        """
+        checks if a user profile with the given name exists.
+        """
         connection = get_connection()
         cursor = connection.execute(
             """
@@ -39,26 +44,29 @@ class UserProfile:
 
 
     @classmethod
-    def saveProfile(cls, profileName: str, profileDescription: str) -> "UserProfile":
+    def createProfile(cls, profileName: str, profileDescription: str):
         """
-        Create and store a new user profile in databse.
+        Create and store a new user profile to databse.
         """
-        connection = get_connection()
-        cursor = connection.execute(
-            """
-            INSERT INTO user_profile (profile_name, profile_desc)
-            Values (?, ?)
-            """,
-            (profileName.strip(), profileDescription.strip())
-        )
-        connection.commit()
-        new_profile = cls(
-            profileId = cursor.lastrowid,
-            profileName=profileName.strip(),
-            profileDescription=profileDescription.strip()
-        )
-        connection.close()
-        return new_profile
+        #Check for duplicate profile name before creating a new profile.
+        if cls.profileExists(profileName):
+            raise ValueError(f"Profile '{profileName}' already exists")
+        else:
+            connection = get_connection()
+            cursor = connection.execute(
+                """
+                INSERT INTO user_profile (profile_name, profile_desc)
+                Values (?, ?)
+                """,
+                (profileName.strip(), profileDescription.strip())
+            )
+            connection.commit()
+            cls(
+                profileId = cursor.lastrowid,
+                profileName=profileName.strip(),
+                profileDescription=profileDescription.strip()
+            )
+            connection.close()
 
     # A method to retrieve all profiles for demo purposes.
     @classmethod
