@@ -13,24 +13,3 @@ def home():
 def list_profiles():
     profiles = UserProfile.getAllProfiles()
     return render_template("profiles/list_profiles.html", profiles=profiles)
-
-
-@user_profile_bp.route("/profiles/create", methods=["GET", "POST"])
-def create_profile():
-    controller = create_user_profile_controller()
-
-    if request.method == "POST":
-        profile_name = request.form.get("profileName", "")
-        profile_description = request.form.get("profileDescription", "")
-
-        success, message, created_profile = controller.createUserProfile(
-            profile_name,
-            profile_description
-        )
-        if success:
-            flash(message, "success")
-            return redirect(url_for("user_profile.list_profiles"))
-
-        flash(message, "error")
-
-    return render_template("profiles/create_profile.html")
