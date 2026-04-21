@@ -9,12 +9,13 @@ class create_user_profile_controller:
 
     def createUserProfile(self, profileName: str, profileDescription: str) -> Tuple[bool, str]:
         """
-        Main public method used by the Boundary.
-
         Returns:
-            (success, message)
+            (success(Boolean), message)
         """
         try:
+            """
+            Validate input(Check duplicate) and create a new user profile.
+            """
             UserProfile.createProfile(profileName, profileDescription)
             return True, "Profile created successfully"
 
