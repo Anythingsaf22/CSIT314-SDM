@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from db import get_connection
+import sqlite3
 
 
 @dataclass
@@ -108,3 +109,84 @@ class UserProfile:
         connection.close()
 
         return [cls.fromRow(row) for row in rows]
+    
+    @classmethod
+    def updateProfile(cls, profileId: int, profileName: str, profileDescription: str) -> Tuple[bool, str]:
+        """
+        Update an existing user profile in the database.
+        """
+        connection = get_connection()
+
+        try:
+            # Check if the profile exists before updating
+            cursor = connection.execute(
+                "SELECT 1 FROM user_profile WHERE profile_id = ?",
+                (profileId,)
+            )
+            row = cursor.fetchone()
+
+            # If the profile does not exist, return False with an error message
+            if not row:
+                return False, "Profile id does not exist."
+
+            # Update the profile with the new name and description
+            connection.execute(
+                """
+                UPDATE user_profile
+                SET profile_name = ?, profile_desc = ?
+                WHERE profile_id = ?
+                """,
+                (profileName.strip(), profileDescription.strip(), profileId)
+            )
+
+            connection.commit()
+            return True, "Profile updated successfully."
+
+        # Profile name is unique, so if the new name already exists for another profile, an IntegrityError will be raised.    
+        except sqlite3.IntegrityError:
+            return False, "Profile name already exists."
+        
+        # Catch any other database errors that may occur and return a generic error message.
+        except sqlite3.Error as e:
+            return False, f"Database error: {str(e)}"
+        
+        finally:
+            connection.close()
+    
+    @classmethod
+    def deleteProfile(cls, profileId: int) -> Tuple[bool, str]:
+        """
+        Delete an existing user profile from the database.
+        """
+        connection = get_connection()
+        try:
+            # Check if the profile exists before deleting
+            cursor = connection.execute(
+                "SELECT 1 FROM user_profile WHERE profile_id = ?",
+                (profileId,)
+            )
+            row = cursor.fetchone()
+
+            # If the profile does not exist, return False with an error message
+            if not row:
+                return False, "Profile id does not exist."
+
+            # Delete the profile
+            connection.execute(
+                "DELETE FROM user_profile WHERE profile_id = ?",
+                (profileId,)
+            )
+
+            connection.commit()
+            return True, "Profile deleted successfully."
+        
+        # If the profile is associated with existing users, an IntegrityError will be raised due to foreign key constraint.
+        except sqlite3.IntegrityError:
+            return False, "Cannot delete profile as it is associated with existing users."
+
+        # Catch any other database errors that may occur and return a generic error message.
+        except sqlite3.Error as e:
+            return False, f"Database error: {str(e)}"
+        
+        finally:
+            connection.close()
