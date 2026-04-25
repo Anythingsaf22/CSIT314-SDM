@@ -45,13 +45,13 @@ class UserProfile:
 
 
     @classmethod
-    def createProfile(cls, profileName: str, profileDescription: str):
+    def createProfile(cls, profileName: str, profileDescription: str) -> Tuple[bool, str]:
         """
         Create and store a new user profile to databse.
         """
         #Check for duplicate profile name before creating a new profile.
         if cls.profileExists(profileName):
-            raise ValueError(f"Profile '{profileName}' already exists")
+            return False, f"Profile '{profileName}' already exists"
         else:
             connection = get_connection()
             cursor = connection.execute(
@@ -62,15 +62,14 @@ class UserProfile:
                 (profileName.strip(), profileDescription.strip())
             )
             connection.commit()
-            new_profile = cls(
-                profileId=cursor.lastrowid,
+            cls(
+                profileId = cursor.lastrowid,
                 profileName=profileName.strip(),
                 profileDescription=profileDescription.strip()
             )
-
             connection.close()
-            return new_profile
-
+            return True, f"Profile '{profileName}' created successfully."
+        
     # A method to retrieve all profiles for demo purposes.
     @classmethod
     def getAllProfiles(cls) -> List["UserProfile"]:
