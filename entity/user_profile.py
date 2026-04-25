@@ -62,12 +62,14 @@ class UserProfile:
                 (profileName.strip(), profileDescription.strip())
             )
             connection.commit()
-            cls(
-                profileId = cursor.lastrowid,
+            new_profile = cls(
+                profileId=cursor.lastrowid,
                 profileName=profileName.strip(),
                 profileDescription=profileDescription.strip()
             )
+
             connection.close()
+            return new_profile
 
     # A method to retrieve all profiles for demo purposes.
     @classmethod

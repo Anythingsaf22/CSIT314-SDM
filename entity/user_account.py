@@ -112,3 +112,47 @@ class UserAccount:
             )
             connection.close()
             return new_account
+
+    @classmethod
+    def getAllAccounts(cls) -> List["UserAccount"]:
+        """
+        Return all user accounts from the database
+        """
+        connection = get_connection()
+        cursor = connection.execute(
+            """
+            SELECT account_id, full_name, username, password, DOB, 
+            address, contact_num, profile_id, account_status
+            FROM user_account
+            ORDER BY account_id
+            """
+        )
+        rows = cursor.fetchall()
+        connection.close()
+
+        return [cls.fromRow(row) for row in rows]
+
+    @classmethod
+    def searchAccounts(clscls, searchTerm: str) -> List["UserAccount"]:
+        """
+        Search user accounts by name, username, contact number, or status
+        """
+        connection = get_connection()
+        keyword = f"%{searchTerm.strip()}%"
+
+        cursor = connection.execute(
+            """
+            SELECT account_id, full_name, username, password, DOB, 
+            address, contact_num, profile_id, account_status
+            FROM user_account
+            WHERE LOWER(full_name) LIKE LOWER(?)
+                OR LOWER(username) LIKE LOWER(?)
+                OR LOWER(contact_num) LIKE LOWER(?)
+                OR LOWER(account_status) LIKE LOWER(?)
+            ORDER BY account_id
+            """,
+            (keyword, keyword, keyword, keyword)
+            )
+        rows = cursor.fetchall()
+        connection.close()
+        return [cls.fromRow(row) for row in rows]
