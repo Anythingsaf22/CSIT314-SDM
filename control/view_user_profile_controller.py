@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import List
 from entity.user_profile import UserProfile
 
 class view_user_profile_controller:
     """
-    Control class responsible for validating input and retrieving user profile details.
+    Control class responsible for retrieving user profile details.
     """
 
     def viewUserProfile(self) -> List["UserProfile"]:
