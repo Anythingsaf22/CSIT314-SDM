@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Fundraising Category</title>
+</head>
+<body>
+    <h1>Update Fundraising Category</h1>
+    {% with messages = get_flashed_messages(with_categories = true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p><strong>{{ category }}:</strong> {{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form method="post" onsubmit="return confirm('Are you sure you want to update this category?');">
+        <div>
+            <label for="categoryId">Category ID</label>
+            <input
+                type="text"
+                id="categoryId"
+                name="categoryId"
+            >
+        </div>
+
+        <div>
+            <label for="categoryName">Category Name</label>
+            <input
+                type="text"
+                id="categoryName"
+                name="categoryName"
+            >
+        </div>
+
+        <button type="submit">Update</button>
+    </form>
+
+    <p>
+        <a href="{{ url_for('fundraising_category.main_page') }}">Back to Categories main page</a>
+    </p>
+</body>
+</html>
