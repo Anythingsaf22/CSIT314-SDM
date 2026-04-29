@@ -28,7 +28,7 @@ def list_activities():
         activities = 0
 
     return render_template(
-        "activities/list.html",
+        "activities/list_activities.html",
         activities=activities,
         search_term=search_term
     )
