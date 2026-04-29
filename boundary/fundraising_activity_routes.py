@@ -8,7 +8,7 @@ from control.delete_fundraising_activity_controller import delete_fundraising_ac
 fundraising_activity_bp = Blueprint("fundraising_activity", __name__)
 
 
-@fundraising_activity_bp.route("/")
+@fundraising_activity_bp.route("/activities/home")
 def home():
     return redirect(url_for('fundraising_activity.list_activities'))
 

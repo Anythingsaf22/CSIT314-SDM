@@ -7,7 +7,7 @@ from control.delete_fundraising_category_contorller import delete_fundraising_ca
 
 fundraising_category_bp = Blueprint("fundraising_category", __name__)
 
-@fundraising_category_bp.route("/")
+@fundraising_category_bp.route("/categories/home")
 def home():
     return redirect(url_for('fundraising_category.main_page'))
 

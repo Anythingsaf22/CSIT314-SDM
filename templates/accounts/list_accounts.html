@@ -15,16 +15,19 @@
     {% endwith %}
 
     <p>
-        <a href="{{ url_for('user_account.create_account') }}">Create User Account</a>
+        <a href="{{ url_for('user_account.create_accounts') }}">Create User Account</a>
     </p>
     <p>
-        <a href="{{ url_for('user_account.view_account') }}">View User Account</a>
+        <a href="{{ url_for('user_account.view_accounts') }}">View User Account</a>
     </p>
     <p>
-        <a href="{{ url_for('user_account.update_account') }}">Update User Account</a>
+        <a href="{{ url_for('user_account.update_accounts') }}">Update User Account</a>
     </p>
     <p>
         <a href="{{ url_for('user_account.suspend_account') }}">Suspend User Account</a>
+    </p>
+    <p>
+        <a href="{{ url_for('home') }}">Back to SDM Fundraising home</a>
     </p>
 
     <form method="get" action="{{ url_for('user_account.list_accounts') }}">

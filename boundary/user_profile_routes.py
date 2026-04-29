@@ -7,7 +7,7 @@ from control.delete_user_profile_controller import delete_user_profile_controlle
 
 user_profile_bp = Blueprint("user_profile", __name__)
 
-@user_profile_bp.route("/")
+@user_profile_bp.route("/profiles/home")
 def home():
     return redirect(url_for('user_profile.list_profiles'))
 

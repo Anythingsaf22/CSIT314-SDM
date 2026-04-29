@@ -45,7 +45,7 @@ def create_accounts():
     profiles = UserProfile.getAllProfiles()
 
     if request.method == "POST":
-        full_name = request.form.get["full_name", ""].strip()
+        full_name = request.form.get("full_name", "").strip()
         user_name = request.form.get("userName", "").strip()
         password = request.form.get("passWord", "").strip()
         birthday = request.form.get("birthday", "").strip()
