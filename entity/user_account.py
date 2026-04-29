@@ -133,7 +133,7 @@ class UserAccount:
         return [cls.fromRow(row) for row in rows]
 
     @classmethod
-    def searchAccounts(clscls, searchTerm: str) -> List["UserAccount"]:
+    def searchAccounts(cls, searchTerm: str) -> List["UserAccount"]:
         """
         Search user accounts by name, username, contact number, or status
         """
@@ -156,3 +156,113 @@ class UserAccount:
         rows = cursor.fetchall()
         connection.close()
         return [cls.fromRow(row) for row in rows]
+
+    @classmethod
+    def updateAccount(cls, accountId: int, fullName: str, userName: str, passWord: str, birthday: str, address: str,
+                      contact_number: str, profileId: int, accountStatus: str) -> Tuple[bool, str]:
+        """
+        Update existing user account in database
+        """
+        fullName = fullName.strip()
+        userName = userName.strip()
+        passWord = passWord.strip()
+        birthday = birthday.strip()
+        address = address.strip()
+        contact_number = contact_number.strip()
+        accountStatus = accountStatus.strip().upper()
+
+        if not fullName:
+            return False, "Full name is required."
+        if not userName:
+            return False, "Username is required."
+        if not passWord:
+            return False, "Password is required."
+        if not contact_number:
+            return False, "Contact number is required."
+
+        valid_statuses = ["ACTIVE", "SUSPENDED", "EXPIRED"]
+        if accountStatus not in valid_statuses:
+            return False, "Invalid account status."
+        connection = get_connection()
+
+        try:
+            cursor = connection.execute(
+                """
+                SELECT 1
+                FROM user_account
+                WHERE account_id = ?
+                """,
+                (accountId,)
+            )
+
+            row = cursor.fetchone()
+
+            if not row:
+                return False, "Account id does not exist."
+            cursor = connection.execute(
+                """
+                SELECT 1
+                FROM user_account
+                WHERE LOWER(username) = LOWER(?)
+                    AND account_id != ?
+                """,
+                (userName, accountId)
+            )
+
+            duplicate_row = cursor.fetchone()
+            if duplicate_row:
+                return False, "Username already exists."
+            connection.execute(
+                """
+                UPDATE user_account
+                SET full_name = ?, username = ?, password = ?, DOB = ?, address = ?, 
+                    contact_num = ?, profile_id = ?, account_status = ?
+                WHERE account_id = ?
+                """,
+                (
+                    fullName, userName, passWord, birthday, address, contact_number, profileId, accountStatus, accountId
+                )
+            )
+            connection.commit()
+            return True, "Account updated successfully."
+        except sqlite3.IntegrityError:
+            return False, "Invalid profile ID/Username already exists."
+        except sqlite3.Error as e:
+            return False, f"Database error: {str(e)}"
+        finally:
+            connection.close()
+
+    @classmethod
+    def suspendAccount(cls, accountId: int) -> Tuple[bool, str]:
+        """
+        Suspend an existing user account
+        """
+        connection = get_connection()
+        try:
+            cursor = connection.execute(
+                """
+                SELECT 1
+                FROM user_account
+                WHERE account_id = ?
+                """,
+                (accountId,)
+            )
+            row = cursor.fetchone()
+
+            if not row:
+                return False, "Account id does not exist."
+
+            connection.execute(
+                """
+                UPDATE user_account
+                SET account_status = 'SUSPENDED'
+                WHERE account_id = ?
+                """,
+                (accountId,)
+            )
+            connection.commit()
+            return True, "Account suspended successfully."
+        except sqlite3.Error as e:
+            return False, f"Database error: {str(e)}"
+        finally:
+            connection.close()

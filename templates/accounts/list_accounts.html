@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Accounts</title>
+</head>
+<body>
+    <h1>User Accounts</h1>
+
+    {% with messages = get_flashed_messages(with_categories = true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p><strong>{{ category }}:</strong> {{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <p>
+        <a href="{{ url_for('user_account.create_account') }}">Create User Account</a>
+    </p>
+    <p>
+        <a href="{{ url_for('user_account.view_account') }}">View User Account</a>
+    </p>
+    <p>
+        <a href="{{ url_for('user_account.update_account') }}">Update User Account</a>
+    </p>
+    <p>
+        <a href="{{ url_for('user_account.suspend_account') }}">Suspend User Account</a>
+    </p>
+
+    <form method="get" action="{{ url_for('user_account.list_accounts') }}">
+        <input
+            type="text"
+            name="search"
+            placeholder="Search accounts"
+            value="{{ search_term }}"
+        >
+        <button type="submit">Search</button>
+        <a href="{{ url_for('user_account.list_accounts') }}">Clear</a>
+    </form>
+
+    {% if accounts %}
+        <ul>
+            {% for account in accounts %}
+                <li>
+                    {{ account.accountId }} -
+                    {{ account.fullName }} -
+                    {{ account.userName }} -
+                    {{ account.accountStatus }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif accounts == 0 %}
+        <p>Search user accounts by name, username, contact number, or status</p>
+    {% else %}
+        <p>No user accounts found.</p>
+    {% endif %}
+</body>
+</html>
