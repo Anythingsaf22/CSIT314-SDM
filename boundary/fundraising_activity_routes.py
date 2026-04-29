@@ -49,19 +49,19 @@ def create_activity():
 
         if not account_id:
             flash("Account ID is required.", "error")
-            return render_template("activities/create.html")
+            return render_template("activities/create_activities.html")
 
         if not category_id:
             flash("Category ID is required.", "error")
-            return render_template("activities/create.html")
+            return render_template("activities/create_activities.html")
 
         if not name:
             flash("Activity name is required.", "error")
-            return render_template("activities/create.html")
+            return render_template("activities/create_activities.html")
 
         if not goal:
             flash("Funding goal is required.", "error")
-            return render_template("activities/create.html")
+            return render_template("activities/create_activities.html")
 
         try:
             account_id = int(account_id)
@@ -69,7 +69,7 @@ def create_activity():
             goal = float(goal)
         except ValueError:
             flash("Invalid numeric input.", "error")
-            return render_template("activities/create.html")
+            return render_template("activities/create_activities.html")
 
         success, message = controller.createActivity(
             account_id, category_id, name, desc, goal, start_date, end_date
@@ -91,7 +91,7 @@ def view_activity():
 
     if not activities:
         flash("No activities found.", "error")
-        return render_template("activities/view.html")
+        return render_template("activities/view_activities.html")
 
     return render_template("activities/view_activities.html", activities=activities)
 
@@ -110,18 +110,18 @@ def update_activity():
 
         if not activity_id:
             flash("Activity ID is required.", "error")
-            return render_template("activities/update.html")
+            return render_template("activities/update_activities.html")
 
         if not name:
             flash("Activity name is required.", "error")
-            return render_template("activities/update.html")
+            return render_template("activities/update_activities.html")
 
         try:
             activity_id = int(activity_id)
             goal = float(goal)
         except ValueError:
             flash("Invalid numeric input.", "error")
-            return render_template("activities/update.html")
+            return render_template("activities/update_activities.html")
 
         success, message = controller.updateActivity(
             activity_id, name, desc, goal, status
@@ -146,7 +146,7 @@ def delete_activity():
 
         if not activity_id:
             flash("Activity ID is required.", "error")
-            return render_template("activities/delete.html")
+            return render_template("activities/delete_activities.html")
 
         success, message = controller.deleteActivity(activity_id)
 
