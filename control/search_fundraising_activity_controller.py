@@ -6,5 +6,5 @@ class class search_fundraising_activity_controller:
     """
     Control class responsible for searching fundraising activity.
     """
-    def searchActivities(self, keyword: str) -> List["FundraisingActivity"]:
-        return FundraisingActivity.searchActivities(keyword)
+    def searchActivities(self, searchTerm: str) -> List["FundraisingActivity"]:
+        return FundraisingActivity.searchActivities(searchTerm)
