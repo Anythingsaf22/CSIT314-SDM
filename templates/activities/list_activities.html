@@ -31,12 +31,7 @@
     </p>
     
     <form method="get" action="{{ url_for('fundraising_activity.list_activities') }}">
-        <input
-            type="text"
-            name="search"
-            placeholder="Search activities"
-            value="{{ search_term }}"
-        >
+        <input type="text" name="search" placeholder="Search activities" value="{{ search_term }}">
         <button type="submit">Search</button>
         <a href="{{ url_for('fundraising_activity.list_activities') }}">Clear</a>
     </form>
