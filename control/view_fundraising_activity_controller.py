@@ -1,1 +1,13 @@
+from typing import List
+from entity.fundraising_activity import FundraisingActivity
 
+class view_fundraising_activity_controller:
+    """
+    Control class responsible for retrieving fundraising activity details.
+    """
+
+    def viewActivities(self) -> List["FundraisingActivity"]:
+        """
+        Retrieve all Fundraising Activity object.
+        """
+        return FundraisingActivity.getAllActivities()
