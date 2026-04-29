@@ -13,15 +13,13 @@
     {% endwith %}
 
     <form method="post" onsubmit="return confirm('Are you sure you want to delete this activity?');">
-
         <div>
             <label for="id">Activity ID</label>
             <input type="number" id="id" name="id" required>
         </div>
-
         <button type="submit">Delete</button>
     </form>
 
-    <p><a href="{{ url_for('activity.list_activities') }}">Back</a></p>
+    <p><a href="{{ url_for('fundraising_activity.list_activities') }}">Back</a></p>
 </body>
 </html>
