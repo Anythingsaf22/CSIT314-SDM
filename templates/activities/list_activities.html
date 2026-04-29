@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fundraising Activities</title>
+</head>
+<body>
+    <h1>Fundraising Activities</h1>
+
+    {% with messages = get_flashed_messages(with_categories = true) %}
+        {% for category, message in messages %}
+            <p><strong>{{ category }}:</strong> {{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <div>
+        <a href="{{ url_for('activity.create') }}">Create Activity</a> |
+        <a href="{{ url_for('activity.view') }}">View All</a> |
+        <a href="{{ url_for('activity.update') }}">Update</a> |
+        <a href="{{ url_for('activity.delete') }}">Delete</a>
+    </div>
+
+    <hr>
+
+    <form method="get" action="{{ url_for('activity.list_activities') }}">
+        <div>
+            <input type="text" name="search" placeholder="Search activities" value="{{ search }}">
+            <button type="submit">Search</button>
+            <a href="{{ url_for('activity.list_activities') }}">Clear</a>
+        </div>
+    </form>
+
+    <hr>
+
+    {% if activities %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Account</th>
+                    <th>Category</th>
+                    <th>Name</th>
+                    <th>Goal</th>
+                    <th>Current</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in activities %}
+                <tr>
+                    <td>{{ a.activityId }}</td>
+                    <td>{{ a.accountId }}</td>
+                    <td>{{ a.categoryId }}</td>
+                    <td>{{ a.activityName }}</td>
+                    <td>{{ a.fundingGoal }}</td>
+                    <td>{{ a.fundingCurrent }}</td>
+                    <td>{{ a.activityStatus }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+        <p>No activities found.</p>
+    {% endif %}
+</body>
+</html>
