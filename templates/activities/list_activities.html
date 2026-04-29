@@ -5,62 +5,54 @@
 </head>
 <body>
     <h1>Fundraising Activities</h1>
-
+    
     {% with messages = get_flashed_messages(with_categories = true) %}
-        {% for category, message in messages %}
-            <p><strong>{{ category }}:</strong> {{ message }}</p>
-        {% endfor %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p><strong>{{ category }}:</strong> {{ message }}</p>
+            {% endfor %}
+        {% endif %}
     {% endwith %}
-
-    <div>
-        <a href="{{ url_for('activity.create') }}">Create Activity</a> |
-        <a href="{{ url_for('activity.view') }}">View All</a> |
-        <a href="{{ url_for('activity.update') }}">Update</a> |
-        <a href="{{ url_for('activity.delete') }}">Delete</a>
-    </div>
-
-    <hr>
-
-    <form method="get" action="{{ url_for('activity.list_activities') }}">
-        <div>
-            <input type="text" name="search" placeholder="Search activities" value="{{ search }}">
-            <button type="submit">Search</button>
-            <a href="{{ url_for('activity.list_activities') }}">Clear</a>
-        </div>
+    
+    <p>
+        <a href="{{ url_for('fundraising_activity.create_activity') }}">Create Fundraising Activity</a>
+    </p>
+    <p>
+        <a href="{{ url_for('fundraising_activity.view_activity') }}">View Fundraising Activity</a>
+    </p>
+    <p>
+        <a href="{{ url_for('fundraising_activity.update_activity') }}">Update Fundraising Activity</a>
+    </p>    
+    <p>
+        <a href="{{ url_for('fundraising_activity.delete_activity') }}">Delete Fundraising Activity</a>
+    </p>
+    <p>
+        <a href="{{ url_for('user_profile.list_profiles') }}">Back to User Profiles</a>
+    </p>
+    
+    <form method="get" action="{{ url_for('fundraising_activity.list_activities') }}">
+        <input
+            type="text"
+            name="search"
+            placeholder="Search activities"
+            value="{{ search_term }}"
+        >
+        <button type="submit">Search</button>
+        <a href="{{ url_for('fundraising_activity.list_activities') }}">Clear</a>
     </form>
-
-    <hr>
-
+    
     {% if activities %}
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Account</th>
-                    <th>Category</th>
-                    <th>Name</th>
-                    <th>Goal</th>
-                    <th>Current</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for a in activities %}
-                <tr>
-                    <td>{{ a.activityId }}</td>
-                    <td>{{ a.accountId }}</td>
-                    <td>{{ a.categoryId }}</td>
-                    <td>{{ a.activityName }}</td>
-                    <td>{{ a.fundingGoal }}</td>
-                    <td>{{ a.fundingCurrent }}</td>
-                    <td>{{ a.activityStatus }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
+        <ul>
+            {% for activity in activities %}
+                <li>
+                    {{ activity.activityName }} - {{ activity.description }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif activities == 0 %}
+        <p>Search fundraising activities by name or description</p>
     {% else %}
-        <p>No activities found.</p>
+        <p>No fundraising activities found.</p>
     {% endif %}
 </body>
 </html>
