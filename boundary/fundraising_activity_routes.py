@@ -81,7 +81,7 @@ def create_activity():
 
         flash(message, "error")
 
-    return render_template("activities/create.html")
+    return render_template("activities/create_activities.html")
 
 # VIEW
 @fundraising_activity_bp.route("/activities/view")
@@ -93,7 +93,7 @@ def view_activity():
         flash("No activities found.", "error")
         return render_template("activities/view.html")
 
-    return render_template("activities/view.html", activities=activities)
+    return render_template("activities/view_activities.html", activities=activities)
 
 
 # UPDATE
@@ -133,7 +133,7 @@ def update_activity():
 
         flash(message, "error")
 
-    return render_template("activities/update.html")
+    return render_template("activities/update_activities.html")
 
 
 # DELETE
@@ -156,4 +156,4 @@ def delete_activity():
 
         flash(message, "error")
 
-    return render_template("activities/delete.html")
+    return render_template("activities/delete_activities.html")
