@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS fundraising_activity;
 DROP TABLE IF EXISTS user_account;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS user_profile;
+DROP TABLE IF EXISTS user_session;
 PRAGMA foreign_keys = ON;
 
 create TABLE user_profile (
@@ -31,7 +32,7 @@ CREATE TABLE user_session(
     session_id INTEGER PRIMARY KEY,
     account_id INTEGER NOT NULL,
     login_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    logout_at TEXT NOT NULL,
+    logout_at TEXT,
     session_status TEXT NOT NULL CHECK( session_status in ('active', 'logged_out', 'suspended', 'expired')),
     FOREIGN KEY (account_id) REFERENCES user_account(account_id)
 );

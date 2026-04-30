@@ -266,3 +266,39 @@ class UserAccount:
             return False, f"Database error: {str(e)}"
         finally:
             connection.close()
+
+    @classmethod
+    def authenticateUser(cls, userName: str, passWord: str) -> "UserAccount":
+        """
+        Authenticate an existing user account
+        """
+        userName = userName.strip()
+        passWord = passWord.strip()
+
+        if not userName:
+            raise ValueError("Username is required.")
+        if not passWord:
+            raise ValueError("Password is required.")
+
+        connection = get_connection()
+        cursor = connection.execute(
+            """
+            SELECT account_id, full_name, username, password, DOB,
+                   address, contact_num, profile_id, account_status
+            FROM user_account
+            WHERE LOWER(username) = LOWER(?)
+                AND password = ?
+            """,
+            (userName, passWord)
+        )
+        row = cursor.fetchone()
+        connection.close()
+
+        if not row:
+            raise ValueError("Invalid username or password.")
+
+        account = cls.fromRow(row)
+
+        if account.accountStatus != "ACTIVE":
+            raise ValueError(f"Account is {account.accountStatus.lower()}.")
+        return account
