@@ -17,7 +17,7 @@ def login():
     controller = login_controller()
     if request.method == "POST":
         user_name = request.form.get("userName", "").strip()
-        password = request.form.get("password", "").strip()
+        password = request.form.get("passWord", "").strip()
         success, message, account, user_session = controller.loginUser(user_name, password)
 
         if success:
@@ -40,5 +40,6 @@ def logout():
     if session_id:
         success, message = controller.logoutUser(session_id)
         flash(message, "success" if success else "error")
-        session.clear()
-        return redirect(url_for("auth.login"))
+
+    session.clear()
+    return redirect(url_for("auth.login"))
