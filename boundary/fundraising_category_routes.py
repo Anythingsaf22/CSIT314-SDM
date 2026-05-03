@@ -4,7 +4,7 @@ from control.view_fundraising_category_controller import view_fundraising_catego
 from control.search_fundraising_category_controller import search_fundraising_category_controller
 from control.update_fundraising_category_controller import update_fundraising_category_controller
 from control.delete_fundraising_category_contorller import delete_fundraising_category_controller
-
+from boundary.access_control import login_required, roles_required, PLATFORM_MANAGEMENT
 fundraising_category_bp = Blueprint("fundraising_category", __name__)
 
 @fundraising_category_bp.route("/categories/home")
@@ -30,6 +30,7 @@ def main_page():
     )
 
 @fundraising_category_bp.route("/categories/create", methods=["GET", "POST"])
+@roles_required(PLATFORM_MANAGEMENT)
 def create_category():
     controller = create_fundraising_category_controller()
 
@@ -59,6 +60,7 @@ def view_category():
     return render_template("categories/category_view.html", categories=categories)
 
 @fundraising_category_bp.route("/categories/update", methods=["GET", "POST"])
+@roles_required(PLATFORM_MANAGEMENT)
 def update_category():
     controller = update_fundraising_category_controller()
 
@@ -88,6 +90,7 @@ def update_category():
     return render_template("categories/category_update.html")
 
 @fundraising_category_bp.route("/categories/delete", methods=["GET", "POST"])
+@roles_required(PLATFORM_MANAGEMENT)
 def delete_category():
     controller = delete_fundraising_category_controller()
 

@@ -1,5 +1,4 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-
 from control.search_user_account_controller import search_user_account_controller
 from control.create_user_account_controller import create_user_account_controller
 from control.view_user_account_controller import view_user_account_controller
@@ -7,10 +6,12 @@ from control.update_user_account_controller import update_user_account_controlle
 from control.suspend_user_account_controller import suspend_user_account_controller
 from entity.user_account import UserAccount
 from entity.user_profile import UserProfile
+from boundary.access_control import roles_required, USER_ADMIN
 
 user_account_bp = Blueprint('user_account', __name__)
 
 @user_account_bp.route('/accounts')
+@roles_required(USER_ADMIN)
 def list_accounts():
     search_term = request.args.get("search", "")
     controller = search_user_account_controller()
@@ -30,6 +31,7 @@ def list_accounts():
         search_term = search_term
     )
 @user_account_bp.route('/accounts/view')
+@roles_required(USER_ADMIN)
 def view_accounts():
     controller = view_user_account_controller()
     accounts = controller.viewUserAccount()
@@ -92,6 +94,7 @@ def create_accounts():
     return render_template("accounts/create_account.html", profiles = profiles)
 
 @user_account_bp.route("/accounts/update", methods=["GET","POST"])
+@roles_required(USER_ADMIN)
 def update_accounts():
     controller = update_user_account_controller()
     profiles = UserProfile.getAllProfiles()
@@ -154,6 +157,7 @@ def update_accounts():
     return render_template("accounts/update_account.html", profiles=profiles)
 
 @user_account_bp.route("/accounts/suspend", methods=["GET", "POST"])
+@roles_required(USER_ADMIN)
 def suspend_account():
     controller = suspend_user_account_controller()
 

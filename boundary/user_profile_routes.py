@@ -4,14 +4,17 @@ from control.create_user_profile_controller import create_user_profile_controlle
 from control.view_user_profile_controller import view_user_profile_controller
 from control.update_user_profile_controller import update_user_profile_controller
 from control.delete_user_profile_controller import delete_user_profile_controller
+from boundary.access_control import login_required, roles_required, USER_ADMIN
 
 user_profile_bp = Blueprint("user_profile", __name__)
 
 @user_profile_bp.route("/profiles/home")
+@roles_required(USER_ADMIN)
 def home():
     return redirect(url_for('user_profile.list_profiles'))
 
 @user_profile_bp.route("/profiles")
+@roles_required(USER_ADMIN)
 def list_profiles():
     search_term = request.args.get("search", "")
     controller = search_user_profile_controller()
@@ -33,6 +36,7 @@ def list_profiles():
 
 
 @user_profile_bp.route("/profiles/create", methods=["GET", "POST"])
+@roles_required(USER_ADMIN)
 def create_profile():
     controller = create_user_profile_controller()
 
@@ -61,6 +65,7 @@ def create_profile():
     return render_template("profiles/create_profile.html")
 
 @user_profile_bp.route("/profiles/view")
+@roles_required(USER_ADMIN)
 def view_profile():
     controller = view_user_profile_controller()
     profiles = controller.viewUserProfile()
@@ -71,6 +76,7 @@ def view_profile():
 
 
 @user_profile_bp.route("/profiles/update", methods=["GET", "POST"])
+@roles_required(USER_ADMIN)
 def update_profile():
     controller = update_user_profile_controller()
 
@@ -106,6 +112,7 @@ def update_profile():
     return render_template("profiles/update_profile.html")
 
 @user_profile_bp.route("/profiles/delete", methods=["GET", "POST"])
+@roles_required(USER_ADMIN)
 def delete_profile():
     controller = delete_user_profile_controller()
 

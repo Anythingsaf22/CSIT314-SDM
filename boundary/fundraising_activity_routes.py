@@ -4,7 +4,7 @@ from control.create_fundraising_activity_controller import create_fundraising_ac
 from control.view_fundraising_activity_controller import view_fundraising_activity_controller
 from control.update_fundraising_activity_controller import update_fundraising_activity_controller
 from control.delete_fundraising_activity_controller import delete_fundraising_activity_controller
-
+from boundary.access_control import login_required, roles_required, FUNDRAISER, PLATFORM_MANAGEMENT
 fundraising_activity_bp = Blueprint("fundraising_activity", __name__)
 
 
@@ -35,6 +35,7 @@ def list_activities():
 
 # CREATE
 @fundraising_activity_bp.route("/activities/create", methods=["GET", "POST"])
+@roles_required(PLATFORM_MANAGEMENT, FUNDRAISER)
 def create_activity():
     controller = create_fundraising_activity_controller()
 
@@ -98,6 +99,7 @@ def view_activity():
 
 # UPDATE
 @fundraising_activity_bp.route("/activities/update", methods=["GET", "POST"])
+@roles_required(PLATFORM_MANAGEMENT, FUNDRAISER)
 def update_activity():
     controller = update_fundraising_activity_controller()
 
@@ -138,6 +140,7 @@ def update_activity():
 
 # DELETE
 @fundraising_activity_bp.route("/activities/delete", methods=["GET", "POST"])
+@roles_required(PLATFORM_MANAGEMENT, FUNDRAISER)
 def delete_activity():
     controller = delete_fundraising_activity_controller()
 
