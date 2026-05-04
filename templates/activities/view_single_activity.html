@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fundraising Activity Detail</title>
+</head>
+<body>
+
+    <h1>{{ activity.activityName }}</h1>
+
+    {% with messages = get_flashed_messages(with_categories = true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p><strong>{{ category }}:</strong> {{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- MAIN INFO -->
+    <h2>Activity Information</h2>
+
+    <p><strong>Description:</strong> {{ activity.activityDescription }}</p>
+    <p><strong>Category ID:</strong> {{ activity.categoryId }}</p>
+    <p><strong>Account ID:</strong> {{ activity.accountId }}</p>
+
+    <hr>
+
+    <!-- PROGRESS INFO -->
+    <h2>Progress</h2>
+
+    <p><strong>Funding Goal:</strong> {{ activity.fundingGoal }}</p>
+    <p><strong>Current Funding:</strong> {{ activity.fundingCurrent }}</p>
+    <p><strong>Status:</strong> {{ activity.activityStatus }}</p>
+
+    <hr>
+
+    <!-- METRICS -->
+    <h2>Engagement Metrics</h2>
+
+    <table border="1">
+        <tr>
+            <th>Views</th>
+            <th>Favourites</th>
+        </tr>
+        <tr>
+            <td>{{ activity.viewCount }}</td>
+            <td>{{ activity.favouriteCount }}</td>
+        </tr>
+    </table>
+
+    <hr>
+
+    <!-- DATES -->
+    <h2>Timeline</h2>
+
+    <p><strong>Start Date:</strong> {{ activity.startDate }}</p>
+    <p><strong>End Date:</strong> {{ activity.endDate }}</p>
+
+    <hr>
+
+    <!-- ACTIONS -->
+    <p>
+        <a href="{{ url_for('fundraising_activity.list_activities') }}">Back</a>
+    </p>
+
+</body>
+</html>
