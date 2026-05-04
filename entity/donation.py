@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Optional
 from db import get_connection
-import sqlite3
 
 @dataclass
 class donation:
