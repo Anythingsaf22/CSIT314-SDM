@@ -219,7 +219,7 @@ class FundraisingActivity:
     @classmethod
     def searchCompletedActivities(cls, searchTerm: str) -> List["FundraisingActivity"]:
         """
-        Search completed activities by name or description
+        Search completed activities by name or description 
         """
         connection = get_connection()
         keyword = f"%{searchTerm.strip()}%"
@@ -242,7 +242,7 @@ class FundraisingActivity:
     @classmethod
     def viewCompletedActivities(cls) -> List["FundraisingActivity"]:
         """
-        View all completed activities
+        View all completed activities without search filter
         """
         connection = get_connection()
         cursor = connection.execute(
