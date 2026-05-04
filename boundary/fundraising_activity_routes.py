@@ -9,6 +9,7 @@ from control.search_completed_activity_controller import search_completed_activi
 from control.view_my_donation_controller import view_my_donation_controller
 from control.search_my_donation_controller import search_my_donation_controller
 from boundary.access_control import login_required, roles_required, FUNDRAISER, PLATFORM_MANAGEMENT
+from control.view_activity_stats_controller import view_activity_stats_controller
 
 
 fundraising_activity_bp = Blueprint("fundraising_activity", __name__)
