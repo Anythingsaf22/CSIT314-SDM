@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from entity.fundraising_activity import FundraisingActivity
 
 class view_fundraising_activity_controller:
