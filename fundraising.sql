@@ -56,8 +56,6 @@ Create TABLE fundraising_activity(
     start_date TEXT NOT NULL,
     end_date TEXT NOT NULL,
     activity_status TEXT NOT NULL CHECK (activity_status in ('completed', 'expired', 'cancelled', 'ongoing')),
-    view_count INTEGER NOT NULL DEFAULT 0,
-    favorite_count INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (account_id) REFERENCES user_account(account_id),
     FOREIGN KEY (category_id) REFERENCES category(category_id)
 );
