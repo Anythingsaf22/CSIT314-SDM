@@ -21,6 +21,12 @@
         <a href="{{ url_for('fundraising_activity.view_activity') }}">View Fundraising Activity</a>
     </p>
     <p>
+        <a href="{{ url_for('fundraising_activity.view_completed_activities') }}">View Completed Activities</a>
+    </p>
+    <p>
+        <a href="{{ url_for('fundraising_activity.view_my_donations') }}">View My Donations [Donor (id: 151-190) only]</a>
+    </p>
+    <p>
         <a href="{{ url_for('fundraising_activity.update_activity') }}">Update Fundraising Activity</a>
     </p>    
     <p>
@@ -30,17 +36,25 @@
         <a href="{{ url_for('user_profile.list_profiles') }}">Back to User Profiles</a>
     </p>
     
+    <p><strong>Search Fundraising Activities:</strong></p>
     <form method="get" action="{{ url_for('fundraising_activity.list_activities') }}">
-        <input type="text" name="search" placeholder="Search activities" value="{{ search_term }}">
+        <input type="text" name="search" placeholder="Search activities" value="{{ search_term }}" style="width:300px;">
         <button type="submit">Search</button>
         <a href="{{ url_for('fundraising_activity.list_activities') }}">Clear</a>
     </form>
+
+    <p><strong>Search Completed Fundraising Activities:</strong></p>
+    <form method="get" action="{{ url_for('fundraising_activity.list_activities') }}">
+        <input type="text" name="searchCompleted" placeholder="Search completed activities" value="{{ search_completed_term }}" style="width:300px;">
+        <button type="submit">Search</button>
+        <a href="{{ url_for('fundraising_activity.list_activities') }}">Clear</a>
+    </form>    
     
     {% if activities %}
         <ul>
             {% for activity in activities %}
                 <li>
-                    {{ activity.activityName }} - {{ activity.activityDescription }}
+                    {{ activity.activityName }} - {{ activity.description }}
                 </li>
             {% endfor %}
         </ul>
