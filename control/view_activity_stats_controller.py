@@ -7,4 +7,7 @@ class view_activity_stats_controller:
     """
 
     def getStats(self, activity_id: int) -> Optional[Tuple[int, int]]:
+        """
+        Retrieve all Fundraising Activity object.
+        """
         return FundraisingActivity.getActivityStats(activity_id)
