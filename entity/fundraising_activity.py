@@ -27,18 +27,18 @@ class FundraisingActivity:
         Create a FundraisingActivity instance from a database row
         """
         return cls(
-            activityId=row["activity_id"],
-            accountId=row["account_id"],
-            categoryId=row["category_id"],
-            activityName=row["activity_name"],
-            activityDescription=row["activity_desc"],
-            fundingGoal=row["funding_goal"],
-            fundingCurrent=row["funding_current"],
-            activityStatus=row["activity_status"],
-            startDate=row["start_date"],
-            endDate=row["end_date"],
-            viewCount=row["view_count"],
-            favouriteCount=row["favourite_count"]
+            activityId=row[0],           # activity_id
+            accountId=row[1],            # account_id
+            activityName=row[2],         # activity_name
+            categoryId=row[3],           # category_id
+            activityDescription=row[4],  # activity_desc
+            fundingCurrent=row[5],       # funding_current
+            fundingGoal=row[6],          # funding_goal
+            startDate=row[7],            # start_date
+            endDate=row[8],              # end_date
+            activityStatus=row[9],       # activity_status
+            viewCount=row[10],           # view_count
+            favoriteCount=row[11]        # favorite_count
         )
 
     @classmethod
