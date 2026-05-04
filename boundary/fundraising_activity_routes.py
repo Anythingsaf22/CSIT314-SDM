@@ -1,10 +1,16 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, session
 from control.search_fundraising_activity_controller import search_fundraising_activity_controller
 from control.create_fundraising_activity_controller import create_fundraising_activity_controller
 from control.view_fundraising_activity_controller import view_fundraising_activity_controller
 from control.update_fundraising_activity_controller import update_fundraising_activity_controller
 from control.delete_fundraising_activity_controller import delete_fundraising_activity_controller
+from control.view_completed_activity_controller import view_completed_activity_controller
+from control.search_completed_activity_controller import search_completed_activity_controller
+from control.view_my_donation_controller import view_my_donation_controller
+from control.search_my_donation_controller import search_my_donation_controller
 from boundary.access_control import login_required, roles_required, FUNDRAISER, PLATFORM_MANAGEMENT
+
+
 fundraising_activity_bp = Blueprint("fundraising_activity", __name__)
 
 
@@ -16,21 +22,31 @@ def home():
 @fundraising_activity_bp.route("/activities")
 def list_activities():
     search_term = request.args.get("search", "")
-    controller = search_fundraising_activity_controller()
+    search_completed_term = request.args.get("searchCompleted", "")
+    searchController = search_fundraising_activity_controller()
+    searchCompletedController = search_completed_activity_controller()
 
     if "search" in request.args:
         if search_term.strip():
-            activities = controller.searchActivities(search_term)
+            activities = searchController.searchActivities(search_term)
+        else:
+            flash("Activity name or description required.", "error")
+            activities = []
+
+    elif "searchCompleted" in request.args:
+        if search_completed_term.strip():
+            activities = searchCompletedController.searchCompletedActivities(search_completed_term)
         else:
             flash("Activity name or description required.", "error")
             activities = []
     else:
         activities = 0
-
+    
     return render_template(
         "activities/list_activities.html",
         activities=activities,
-        search_term=search_term
+        search_term=search_term,
+        search_completed_term=search_completed_term
     )
 
 # CREATE
@@ -160,3 +176,36 @@ def delete_activity():
         flash(message, "error")
 
     return render_template("activities/delete_activity.html")
+
+# VIEW COMPLETED ACTIVITIES
+@fundraising_activity_bp.route("/activities/viewCompleted")
+def view_completed_activities():
+    controller = view_completed_activity_controller()
+    activities = controller.viewCompletedActivities()
+
+    if not activities:
+        flash("No activities found.", "error")
+        return render_template("activities/view_completed_activity.html")
+
+    return render_template("activities/view_completed_activity.html", activities=activities)
+
+# View and Search My Donations
+@fundraising_activity_bp.route("/activities/myDonations")
+@login_required
+def view_my_donations():
+    account_id = session.get("account_id")
+    search_term = request.args.get("search", "").strip()
+    viewController = view_my_donation_controller()
+    searchController = search_my_donation_controller()
+    donations = viewController.viewMyDonations(account_id)
+    
+    if "search" in request.args: 
+        if search_term:
+            donations = searchController.searchMyDonations(account_id, search_term)
+        else:
+            flash("Activity name or category required.", "error")
+
+    if not donations:
+        flash("No donations found.", "error")
+
+    return render_template("activities/view_my_donations.html", donations=donations, search_term=search_term)
