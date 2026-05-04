@@ -11,21 +11,3 @@ class view_fundraising_activity_controller:
         Retrieve all Fundraising Activity object.
         """
         return FundraisingActivity.getAllActivities()
-
-    def viewActivityById(self, activity_id: int) -> Optional["FundraisingActivity"]:
-        """
-        Retrieve a single fundraising activity by ID.
-        Also increments view count if activity exists.
-
-        Args:
-            activity_id (int)
-
-        Returns:
-            FundraisingActivity | None
-        """
-        activity = FundraisingActivity.getActivityById(activity_id)
-
-        if activity:
-            FundraisingActivity.incrementViewCount(activity_id)
-
-        return activity
