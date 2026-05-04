@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activity Statistics</title>
+</head>
+<body>
+
+    <h1>Fundraising Activity Statistics</h1>
+
+    {% with messages = get_flashed_messages(with_categories = true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p><strong>{{ category }}:</strong> {{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- INPUT SECTION -->
+    <form method="post">
+        <div>
+            <label for="activityId">Activity ID</label>
+            <input type="number" name="activityId" id="activityId" required>
+        </div>
+
+        <button type="submit">View Statistics</button>
+    </form>
+
+    <hr>
+
+    <!-- RESULT SECTION -->
+    {% if stats %}
+        <h2>Analytics Result</h2>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>View Count</th>
+                    <th>Favourite Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ stats[0] }}</td>
+                    <td>{{ stats[1] }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
+    <p>
+        <a href="{{ url_for('fundraising_activity.list_activities') }}">Back to Activities</a>
+    </p>
+
+</body>
+</html>
