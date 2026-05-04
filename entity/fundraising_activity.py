@@ -18,6 +18,8 @@ class FundraisingActivity:
     activityStatus: str
     startDate: str
     endDate: str
+    viewCount: int
+    favouriteCount: int
 
     @classmethod
     def fromRow(cls, row) -> "FundraisingActivity":
@@ -34,7 +36,9 @@ class FundraisingActivity:
             fundingCurrent=row["funding_current"],
             activityStatus=row["activity_status"],
             startDate=row["start_date"],
-            endDate=row["end_date"]
+            endDate=row["end_date"],
+            viewCount=row["view_count"],
+            favouriteCount=row["favourite_count"]
         )
 
     @classmethod
@@ -257,3 +261,65 @@ class FundraisingActivity:
         connection.close()
 
         return [cls.fromRow(row) for row in rows]
+
+    @classmethod
+    def getActivityStats(cls, activityId: int) -> Optional[Tuple[int, int]]:
+        """
+        Return:
+            (view_count, favourite_count)
+        """
+        conn = get_connection()
+
+        try:
+            cursor = conn.execute(
+                """
+                SELECT view_count, favourite_count
+                FROM fundraising_activity
+                WHERE activity_id = ?
+                """,
+                (activityId,)
+            )
+
+            row = cursor.fetchone()
+
+            if row:
+                return (row["view_count"], row["favourite_count"])
+            return None
+
+        except sqlite3.Error as e:
+            return None
+
+        finally:
+            conn.close()
+
+    @classmethod
+    def incrementViewCount(cls, activityId: int) -> None:
+        conn = get_connection()
+        try:
+            conn.execute(
+                """
+                UPDATE fundraising_activity
+                SET view_count = view_count + 1
+                WHERE activity_id = ?
+                """,
+                (activityId,)
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    @classmethod
+    def incrementFavouriteCount(cls, activityId: int) -> None:
+        conn = get_connection()
+        try:
+            conn.execute(
+                """
+                UPDATE fundraising_activity
+                SET favourite_count = favourite_count + 1
+                WHERE activity_id = ?
+                """,
+                (activityId,)
+            )
+            conn.commit()
+        finally:
+            conn.close()
