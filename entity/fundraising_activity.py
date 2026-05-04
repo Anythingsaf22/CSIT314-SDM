@@ -37,7 +37,7 @@ class FundraisingActivity:
             activityStatus=row["activity_status"],
             startDate=row["start_date"],
             endDate=row["end_date"],
-            viewCount=row[10],
+            viewCount=row["view_count"],
             favouriteCount=row["favourite_count"]
         )
 
