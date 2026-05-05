@@ -18,6 +18,8 @@ class FundraisingActivity:
     activityStatus: str
     startDate: str
     endDate: str
+    viewCount: int = 0
+    favouriteCount: int = 0
 
     @classmethod
     def fromRow(cls, row) -> "FundraisingActivity":
@@ -34,7 +36,9 @@ class FundraisingActivity:
             fundingGoal=row["funding_goal"],
             startDate=row["start_date"],
             endDate=row["end_date"],
-            activityStatus=row["activity_status"]
+            activityStatus=row["activity_status"],
+            viewCount=row["view_count"],
+            favouriteCount=row["favourite_count"]
         )
 
     @classmethod
