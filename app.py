@@ -4,7 +4,7 @@ from boundary.fundraising_category_routes import fundraising_category_bp
 from boundary.fundraising_activity_routes import fundraising_activity_bp
 from boundary.user_account_routes import user_account_bp
 from boundary.auth_routes import auth_bp
-from boundary.favourites_list import favourite_list_bp
+from boundary.favourite_list_routes import favourite_list_bp
 
 def create_app():
     app = Flask(__name__)
