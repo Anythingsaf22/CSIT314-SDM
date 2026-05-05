@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Favourite Activities</title>
+</head>
+<body>
+    <h1>My Favourite Activities</h1>
+
+    {% with messages = get_flashed_messages(with_categories = true) %}
+        {% for category, message in messages %}
+            <p><strong>{{ category }}:</strong> {{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <p>
+        <a href="{{ url_for('favourites_list.search_favourites_list') }}">Search Favourite Activities</a>
+    </p>
+
+    <p>
+        <a href="{{ url_for('fundraising_activity.list_activities') }}">Back</a>
+    </p>
+
+    {% if favourites %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Activity ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Current</th>
+                    <th>Goal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in favourites %}
+                <tr>
+                    <td>{{ f.activityId }}</td>
+                    <td>{{ f.activityName }}</td>
+                    <td>{{ f.activityDescription }}</td>
+                    <td>{{ f.categoryId }}</td>
+                    <td>{{ f.activityStatus }}</td>
+                    <td>{{ f.fundingCurrent }}</td>
+                    <td>{{ f.fundingGoal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No favourite activities available.</p>
+    {% endif %}
+
+</body>
+</html>
