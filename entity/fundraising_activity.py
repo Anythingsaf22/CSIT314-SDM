@@ -30,11 +30,11 @@ class FundraisingActivity:
             categoryId=row["category_id"],
             activityName=row["activity_name"],
             activityDescription=row["activity_desc"],
-            fundingGoal=row["funding_goal"],
             fundingCurrent=row["funding_current"],
-            activityStatus=row["activity_status"],
+            fundingGoal=row["funding_goal"],
             startDate=row["start_date"],
-            endDate=row["end_date"]
+            endDate=row["end_date"],
+            activityStatus=row["activity_status"]
         )
 
     @classmethod
@@ -216,3 +216,44 @@ class FundraisingActivity:
         finally:
             connection.close()
         
+    @classmethod
+    def searchCompletedActivities(cls, searchTerm: str) -> List["FundraisingActivity"]:
+        """
+        Search completed activities by name or description 
+        """
+        connection = get_connection()
+        keyword = f"%{searchTerm.strip()}%"
+        cursor = connection.execute(
+            """
+            SELECT * FROM fundraising_activity
+            WHERE activity_status = 'completed'
+              AND (LOWER(activity_name) LIKE LOWER(?)
+                   OR LOWER(activity_desc) LIKE LOWER(?))
+            ORDER BY activity_id
+            """,
+            (keyword, keyword)
+        )
+
+        rows = cursor.fetchall()
+        connection.close()
+
+        return [cls.fromRow(row) for row in rows]
+    
+    @classmethod
+    def viewCompletedActivities(cls) -> List["FundraisingActivity"]:
+        """
+        View all completed activities without search filter
+        """
+        connection = get_connection()
+        cursor = connection.execute(
+            """
+            SELECT * FROM fundraising_activity
+            WHERE activity_status = 'completed'
+            ORDER BY activity_id
+            """
+        )
+
+        rows = cursor.fetchall()
+        connection.close()
+
+        return [cls.fromRow(row) for row in rows]
