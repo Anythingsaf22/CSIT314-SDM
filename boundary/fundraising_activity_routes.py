@@ -209,3 +209,15 @@ def view_my_donations():
         flash("No donations found.", "error")
 
     return render_template("activities/view_my_donations.html", donations=donations, search_term=search_term)
+
+@fundraising_activity_bp.route("/activities/insights")
+def activity_insights():
+    account_id = session.get("account_id")
+
+    controller = view_activity_insights_controller()
+    activities = controller.viewInsights(account_id)
+
+    return render_template(
+        "activities/activity_insights.html",
+        activities=activities
+    )
