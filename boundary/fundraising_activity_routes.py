@@ -222,10 +222,3 @@ def activity_insights():
         "activities/activity_insights.html",
         activities=activities
     )
-
-@fundraising_activity_bp.route("/debug/session")
-def debug_session():
-    return {
-        "account_id": session.get("account_id"),
-        "role": session.get("role")
-    }
