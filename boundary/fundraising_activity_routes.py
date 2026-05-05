@@ -8,7 +8,6 @@ from control.view_completed_activity_controller import view_completed_activity_c
 from control.search_completed_activity_controller import search_completed_activity_controller
 from control.view_my_donation_controller import view_my_donation_controller
 from control.search_my_donation_controller import search_my_donation_controller
-from control.view_activity_insights_controller import view_activity_insights_controller
 from boundary.access_control import login_required, roles_required, FUNDRAISER, PLATFORM_MANAGEMENT
 
 
@@ -210,15 +209,3 @@ def view_my_donations():
         flash("No donations found.", "error")
 
     return render_template("activities/view_my_donations.html", donations=donations, search_term=search_term)
-
-@fundraising_activity_bp.route("/activities/insights")
-def activity_insights():
-    account_id = session.get("account_id")
-
-    controller = view_activity_insights_controller()
-    activities = controller.viewInsights(account_id)
-
-    return render_template(
-        "activities/activity_insights.html",
-        activities=activities
-    )
