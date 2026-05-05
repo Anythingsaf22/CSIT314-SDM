@@ -14,15 +14,17 @@ def home():
 @fundraising_category_bp.route("/categories")
 def main_page():
     search_term = request.args.get("search", "")
-    controller = search_fundraising_category_controller()
     if "search" in request.args:
         if search_term.strip():
+            controller = search_fundraising_category_controller()
             categories = controller.searchCategories(search_term)
         else:
             flash("Category name needs to be provided.", "error")
-            categories = []
+            controller = view_fundraising_category_controller()
+            categories = controller.viewFundraisingCategory()
     else:
-            categories = 0
+            controller = view_fundraising_category_controller()
+            categories = controller.viewFundraisingCategory()
     return render_template(
         "categories/category_main_page.html", 
         categories=categories, 

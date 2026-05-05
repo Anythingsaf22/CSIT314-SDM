@@ -1,61 +1,196 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>User Accounts</title>
+    <title>User Account</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: white; }
+        .header { background: #e0e0e0; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        nav { background: #fff; border-bottom: 2px solid #000; padding: 0 20px; }
+        nav a { text-decoration: none; color: black; padding: 15px; display: inline-block; font-weight: bold; }
+        nav a.active { border-bottom: 4px solid black; }
+
+        .main { padding: 30px; }
+        .main h2 { font-size: 24px; color: #5a5a5a; margin: 0 0 20px; }
+        .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; }
+        .search-row form { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: bold; }
+        .search-row input { width: 220px; height: 28px; border: 1px solid #777; border-radius: 3px; padding: 0 8px; }
+        .search-btn { background: #000; color: white; border: none; border-radius: 4px; height: 32px; width: 90px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+
+        .table-box { width: 100%; border: 1px solid #777; border-radius: 4px; overflow: hidden; padding-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead { background: #d9d9d9; }
+        th { text-align: left; padding: 12px; border-bottom: 1px solid #000; }
+        td { padding: 12px; border-bottom: 1px solid #ccc; font-weight: bold; }
+
+        .message { padding: 12px; margin-bottom: 16px; border: 1px solid #777; font-weight: bold; }
+        .message.success { background: #e6f4ea; color: #2e7d32; border-color: #2e7d32; }
+        .message.error { background: #fdecea; color: #c62828; border-color: #c62828; }
+
+        .status-text { width: 100px; display: inline-block; }
+        .status-active { color: green; font-weight: bold; }
+        .status-deactivated { color: red; font-weight: bold; }
+        .status-expired { color: #8a5a00; font-weight: bold; }
+
+        .action-btn { background: #000; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: bold; cursor: pointer; margin-right: 4px; text-decoration: none; display: inline-block; }
+        .add-btn { margin: 20px 0 0 10px; background: #2b2b2b; color: white; border: none; border-radius: 6px; padding: 10px 14px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        .empty-row { text-align: center; color: #666; }
+        .suspend-toggle { width: 42px; height: 22px; border: none; border-radius: 22px; padding: 3px; position: relative; cursor: pointer; background: #111; vertical-align: middle; }
+        .suspend-toggle::before { content: ""; position: absolute; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: white; transition: left 0.2s ease; }
+        .suspend-toggle.is-active { opacity: 0.35; }
+        .suspend-toggle.is-active::before { left: 4px; }
+        .suspend-toggle.is-suspended { opacity: 1; cursor: not-allowed; }
+        .suspend-toggle.is-suspended::before { left: 24px; }
+        .suspend-toggle.is-disabled { opacity: 0.18; cursor: not-allowed; }
+        .suspend-toggle.is-disabled::before { left: 4px; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); justify-content: center; align-items: center; z-index: 1000; }
+        .confirm-box { background: #f4f4f4; width: 340px; border-radius: 6px; padding: 20px; text-align: center; border: 1px solid black; color: black; }
+        .confirm-box h3 { margin-top: 0; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 24px; justify-content: center; }
+        .cancel-btn { background: #777; color: white; border: none; border-radius: 4px; height: 32px; width: 90px; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <h1>User Accounts</h1>
+    <div class="header">
+        <h2>Online Fundraising System</h2>
+        <div>Welcome, {{ session.get('user_name', 'Guest') }} | <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+    </div>
+    <nav>
+        <a href="{{ url_for('user_account.list_accounts') }}" class="active">User Account</a>
+        <a href="{{ url_for('user_profile.list_profiles') }}">User Profile</a>
+    </nav>
 
-    {% with messages = get_flashed_messages(with_categories = true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <p><strong>{{ category }}:</strong> {{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <div class="main">
+        <h2>All User Accounts</h2>
 
-    <p>
-        <a href="{{ url_for('user_account.create_accounts') }}">Create User Account</a>
-    </p>
-    <p>
-        <a href="{{ url_for('user_account.view_accounts') }}">View User Account</a>
-    </p>
-    <p>
-        <a href="{{ url_for('user_account.update_accounts') }}">Update User Account</a>
-    </p>
-    <p>
-        <a href="{{ url_for('user_account.suspend_account') }}">Suspend User Account</a>
-    </p>
-    <p>
-        <a href="{{ url_for('home') }}">Back to SDM Fundraising home</a>
-    </p>
+        {% with messages = get_flashed_messages(with_categories = true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-    <form method="get" action="{{ url_for('user_account.list_accounts') }}">
-        <input
-            type="text"
-            name="search"
-            placeholder="Search accounts"
-            value="{{ search_term }}"
-        >
-        <button type="submit">Search</button>
-        <a href="{{ url_for('user_account.list_accounts') }}">Clear</a>
-    </form>
+        <div class="search-row">
+            <form method="get" action="{{ url_for('user_account.list_accounts') }}">
+                <label for="search">Search Accounts:</label>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Name, username, contact, or status"
+                    value="{{ search_term }}"
+                >
+                <button class="search-btn" type="submit">SEARCH</button>
+                <a class="search-btn" href="{{ url_for('user_account.list_accounts') }}">CLEAR</a>
+            </form>
+        </div>
 
-    {% if accounts %}
-        <ul>
-            {% for account in accounts %}
-                <li>
-                    {{ account.accountId }} -
-                    {{ account.fullName }} -
-                    {{ account.userName }} -
-                    {{ account.accountStatus }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% elif accounts == 0 %}
-        <p>Search user accounts by name, username, contact number, or status</p>
-    {% else %}
-        <p>No user accounts found.</p>
-    {% endif %}
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Account ID</th>
+                        <th>Full Name</th>
+                        <th>Username</th>
+                        <th>Contact</th>
+                        <th>Profile ID</th>
+                        <th>Status</th>
+                        <th>Suspend</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if accounts %}
+                        {% for account in accounts %}
+                            <tr>
+                                <td>{{ account.accountId }}</td>
+                                <td>{{ account.fullName }}</td>
+                                <td>{{ account.userName }}</td>
+                                <td>{{ account.contact_number }}</td>
+                                <td>{{ account.profileId }}</td>
+                                <td>
+                                    {% if account.accountStatus == "ACTIVE" %}
+                                        <span class="status-text status-active">Active</span>
+                                    {% elif account.accountStatus == "SUSPENDED" %}
+                                        <span class="status-text status-deactivated">Suspended</span>
+                                    {% else %}
+                                        <span class="status-text status-expired">{{ account.accountStatus.title() }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if account.accountStatus == "ACTIVE" %}
+                                        <button
+                                            class="suspend-toggle is-active"
+                                            type="button"
+                                            aria-label="Suspend {{ account.fullName }}"
+                                            onclick='openSuspendAccountModal({{ account.accountId|tojson }}, {{ account.fullName|tojson }})'
+                                        ></button>
+                                    {% elif account.accountStatus == "SUSPENDED" %}
+                                        <button
+                                            class="suspend-toggle is-suspended"
+                                            type="button"
+                                            aria-label="{{ account.fullName }} is currently suspended"
+                                            disabled
+                                        ></button>
+                                    {% else %}
+                                        <button
+                                            class="suspend-toggle is-disabled"
+                                            type="button"
+                                            aria-label="{{ account.fullName }} cannot be suspended from this state"
+                                            disabled
+                                        ></button>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a class="action-btn" href="{{ url_for('user_account.update_accounts') }}">Edit</a>
+                                    <a class="action-btn" href="{{ url_for('user_account.view_accounts') }}">View</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% elif accounts == 0 %}
+                        <tr>
+                            <td class="empty-row" colspan="8">Search user accounts by name, username, contact number, or status.</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="empty-row" colspan="8">No user accounts found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            <a class="add-btn" href="{{ url_for('user_account.create_accounts') }}">+ Add New User Account</a>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="suspendAccountModal">
+        <div class="confirm-box">
+            <h3>Are you sure?</h3>
+            <p>
+                This will suspend
+                <strong id="suspendAccountName"></strong>
+                (Account ID: <span id="suspendAccountIdText"></span>).
+            </p>
+            <form method="post" action="{{ url_for('user_account.suspend_account') }}">
+                <input type="hidden" id="suspendAccountId" name="accountId">
+                <div class="modal-actions">
+                    <button class="search-btn" type="submit">Yes</button>
+                    <button class="cancel-btn" type="button" onclick="closeSuspendAccountModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openSuspendAccountModal(accountId, accountName) {
+            document.getElementById("suspendAccountId").value = accountId;
+            document.getElementById("suspendAccountIdText").innerText = accountId;
+            document.getElementById("suspendAccountName").innerText = accountName;
+            document.getElementById("suspendAccountModal").style.display = "flex";
+        }
+
+        function closeSuspendAccountModal() {
+            document.getElementById("suspendAccountModal").style.display = "none";
+        }
+    </script>
 </body>
 </html>

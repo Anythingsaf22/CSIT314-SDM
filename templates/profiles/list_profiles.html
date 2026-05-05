@@ -1,54 +1,152 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>User Profiles</title>
+    <title>User Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: white; }
+        .header { background: #e0e0e0; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        nav { background: #fff; border-bottom: 2px solid #000; padding: 0 20px; }
+        nav a { text-decoration: none; color: black; padding: 15px; display: inline-block; font-weight: bold; }
+        nav a.active { border-bottom: 4px solid black; }
+
+        .main { padding: 30px; }
+        .main h2 { font-size: 24px; color: #5a5a5a; margin: 0 0 20px; }
+
+        .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; }
+        .search-row form { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: bold; }
+        .search-row input { width: 240px; height: 28px; border: 1px solid #777; border-radius: 3px; padding: 0 8px; }
+        .search-btn { background: #000; color: white; border: none; border-radius: 4px; height: 32px; width: 90px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+
+        .table-box { width: 100%; border: 1px solid #777; border-radius: 4px; overflow: hidden; padding-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead { background: #d9d9d9; }
+        th { text-align: left; padding: 12px; border-bottom: 1px solid #000; }
+        td { padding: 12px; border-bottom: 1px solid #ccc; font-weight: bold; vertical-align: top; }
+
+        .message { padding: 12px; margin-bottom: 16px; border: 1px solid #777; font-weight: bold; }
+        .message.success { background: #e6f4ea; color: #2e7d32; border-color: #2e7d32; }
+        .message.error { background: #fdecea; color: #c62828; border-color: #c62828; }
+
+        .action-btn { background: #000; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: bold; cursor: pointer; margin-right: 4px; text-decoration: none; display: inline-block; }
+        .add-btn { margin: 20px 0 0 10px; background: #2b2b2b; color: white; border: none; border-radius: 6px; padding: 10px 14px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        .empty-row { text-align: center; color: #666; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); justify-content: center; align-items: center; z-index: 1000; }
+        .confirm-box { background: #f4f4f4; width: 340px; border-radius: 6px; padding: 20px; text-align: center; border: 1px solid black; color: black; }
+        .confirm-box h3 { margin-top: 0; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 24px; justify-content: center; }
+        .cancel-btn { background: #777; color: white; border: none; border-radius: 4px; height: 32px; width: 90px; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <h1>User Profiles</h1>
-    {% with messages = get_flashed_messages(with_categories = true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <p><strong>{{ category }}:</strong> {{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    <p>
-        <a href="{{ url_for('user_profile.create_profile') }}">Create User Profile</a>
-    </p>
-    <p>
-        <a href="{{ url_for('user_profile.view_profile') }}">View User Profile</a>
-    </p>
-    <p>
-        <a href="{{ url_for('user_profile.update_profile') }}">Update User Profile</a>
-    </p>
-    <p>
-        <a href="{{ url_for('user_profile.delete_profile') }}">Delete User Profile</a>
-    </p>
-    <p>
-        <a href="{{ url_for('home') }}">Back to SDM Fundraising home</a>
-    </p>
-    <form method="get" action="{{ url_for('user_profile.list_profiles') }}">
-    <input
-        type="text"
-        name="search"
-        placeholder="Search profiles"
-        value="{{ search_term }}"
-    >
-    <button type="submit">Search</button>
-    <a href="{{ url_for('user_profile.list_profiles') }}">Clear</a>
-    </form>
-    {% if profiles %}
-        <ul>
-            {% for profile in profiles %}
-                <li>
-                    {{ profile.profileName }} - {{ profile.profileDescription }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% elif profiles == 0 %}
-        <p>Search user profiles by name or description</p>
-    {% else %}
-        <p>No user profiles found.</p>
-    {% endif %}
+    <div class="header">
+        <h2>Online Fundraising System</h2>
+        <div>Welcome, {{ session.get('user_name', 'Guest') }} | <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+    </div>
+    <nav>
+        <a href="{{ url_for('user_account.list_accounts') }}">User Account</a>
+        <a href="{{ url_for('user_profile.list_profiles') }}" class="active">User Profile</a>
+    </nav>
+
+    <div class="main">
+        <h2>All User Profiles</h2>
+
+        {% with messages = get_flashed_messages(with_categories = true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="search-row">
+            <form method="get" action="{{ url_for('user_profile.list_profiles') }}">
+                <label for="search">Search Profile:</label>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Name or description"
+                    value="{{ search_term }}"
+                >
+                <button class="search-btn" type="submit">SEARCH</button>
+                <a class="search-btn" href="{{ url_for('user_profile.list_profiles') }}">CLEAR</a>
+            </form>
+        </div>
+
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Profile ID</th>
+                        <th>All Profiles</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if profiles %}
+                        {% for profile in profiles %}
+                            <tr>
+                                <td>{{ profile.profileId }}</td>
+                                <td>{{ profile.profileName }}</td>
+                                <td>{{ profile.profileDescription }}</td>
+                                <td>
+                                    <a class="action-btn" href="{{ url_for('user_profile.update_profile') }}">Update</a>
+                                    <a class="action-btn" href="{{ url_for('user_profile.view_profile') }}">View</a>
+                                    <button
+                                        class="action-btn"
+                                        type="button"
+                                        onclick='openDeleteProfileModal({{ profile.profileId|tojson }}, {{ profile.profileName|tojson }})'
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% elif profiles == 0 %}
+                        <tr>
+                            <td class="empty-row" colspan="4">Search user profiles by name or description.</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="empty-row" colspan="4">No user profiles found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            <a class="add-btn" href="{{ url_for('user_profile.create_profile') }}">+ Add New User Profile</a>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deleteProfileModal">
+        <div class="confirm-box">
+            <h3>Are you sure?</h3>
+            <p>
+                This will permanently delete
+                <strong id="deleteProfileName"></strong>
+                (Profile ID: <span id="deleteProfileIdText"></span>).
+            </p>
+            <form method="post" action="{{ url_for('user_profile.delete_profile') }}">
+                <input type="hidden" id="deleteProfileId" name="profileId">
+                <div class="modal-actions">
+                    <button class="search-btn" type="submit">Yes</button>
+                    <button class="cancel-btn" type="button" onclick="closeDeleteProfileModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openDeleteProfileModal(profileId, profileName) {
+            document.getElementById("deleteProfileId").value = profileId;
+            document.getElementById("deleteProfileIdText").innerText = profileId;
+            document.getElementById("deleteProfileName").innerText = profileName;
+            document.getElementById("deleteProfileModal").style.display = "flex";
+        }
+
+        function closeDeleteProfileModal() {
+            document.getElementById("deleteProfileModal").style.display = "none";
+        }
+    </script>
 </body>
 </html>

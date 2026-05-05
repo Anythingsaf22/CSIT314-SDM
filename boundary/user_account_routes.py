@@ -14,16 +14,18 @@ user_account_bp = Blueprint('user_account', __name__)
 @roles_required(USER_ADMIN)
 def list_accounts():
     search_term = request.args.get("search", "")
-    controller = search_user_account_controller()
 
     if "search" in request.args:
         if search_term.strip():
+            controller = search_user_account_controller()
             accounts = controller.searchAccounts(search_term)
         else:
             flash("Account search term is required.", "error")
-            accounts = []
+            controller = view_user_account_controller()
+            accounts = controller.viewUserAccount()
     else:
-        accounts = 0
+        controller = view_user_account_controller()
+        accounts = controller.viewUserAccount()
 
     return render_template(
         "accounts/list_accounts.html",

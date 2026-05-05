@@ -17,17 +17,19 @@ def home():
 @roles_required(USER_ADMIN)
 def list_profiles():
     search_term = request.args.get("search", "")
-    controller = search_user_profile_controller()
 
     if "search" in request.args:
         if search_term.strip():
+            controller = search_user_profile_controller()
             profiles = controller.searchProfiles(search_term)
 
         else:
             flash("Profile name or description needs to be provided.", "error")
-            profiles = []
+            controller = view_user_profile_controller()
+            profiles = controller.viewUserProfile()
     else:
-        profiles = 0
+        controller = view_user_profile_controller()
+        profiles = controller.viewUserProfile()
     return render_template(
         "profiles/list_profiles.html",
         profiles = profiles,
