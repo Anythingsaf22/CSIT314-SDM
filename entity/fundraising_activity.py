@@ -261,35 +261,3 @@ class FundraisingActivity:
         connection.close()
 
         return [cls.fromRow(row) for row in rows]
-
-    @classmethod
-    def getActivitiesWithInterestCounts(cls, accountId: int):
-        connection = get_connection()
-
-        cursor = connection.execute("""
-            SELECT 
-                fa.*,
-                COALESCE(v.view_count, 0) AS view_count,
-                COALESCE(f.favourite_count, 0) AS favourite_count
-            FROM fundraising_activity fa
-
-            LEFT JOIN (
-                SELECT activity_id, COUNT(*) AS view_count
-                FROM activity_view
-                GROUP BY activity_id
-            ) v ON fa.activity_id = v.activity_id
-
-            LEFT JOIN (
-                SELECT activity_id, COUNT(*) AS favourite_count
-                FROM favourite_list
-                GROUP BY activity_id
-            ) f ON fa.activity_id = f.activity_id
-
-            WHERE fa.account_id = ?
-            ORDER BY fa.activity_id
-        """, (accountId,))
-
-        rows = cursor.fetchall()
-        connection.close()
-
-        return [cls.fromInsightRow(row) for row in rows]
