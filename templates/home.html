@@ -210,6 +210,9 @@
             <a class="tab" href="{{ url_for('user_account.list_accounts') }}">Accounts</a>
             <a class="tab" href="{{ url_for('fundraising_category.main_page') }}">Categories</a>
             <a class="tab" href="{{ url_for('fundraising_activity.list_activities') }}">Activities</a>
+            {% if session.get("account_id") %}
+            <a class="tab" href="{{ url_for('favourites.list_favourites') }}">Favourites</a>
+            {% endif %}
         </nav>
 
         <main class="content">
@@ -277,6 +280,17 @@
                         activity status, and related search flows.
                     </p>
                     <a class="open-button" href="{{ url_for('fundraising_activity.list_activities') }}">Open Module</a>
+                </div>
+
+                <div class="module-row">
+                    <div>
+                        <p class="module-name">Favourite Activities</p>
+                    </div>
+                    <p class="module-copy">
+                        Save fundraising activities for quick access, search your saved list,
+                        and review progress before making donation decisions.
+                    </p>
+                    <a class="open-button" href="{{ url_for('favourites.list_favourites') }}">Open Module</a>
                 </div>
             </section>
 
