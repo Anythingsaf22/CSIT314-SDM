@@ -211,7 +211,7 @@
             <a class="tab" href="{{ url_for('fundraising_category.main_page') }}">Categories</a>
             <a class="tab" href="{{ url_for('fundraising_activity.list_activities') }}">Activities</a>
             {% if session.get("account_id") %}
-            <a class="tab" href="{{ url_for('favourites.list_favourites') }}">Favourites</a>
+            <a class="tab" href="{{ url_for('favourites_list.view_favourites_list') }}">Favourites</a>
             {% endif %}
         </nav>
 

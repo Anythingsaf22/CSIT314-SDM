@@ -12,13 +12,13 @@
         {% endfor %}
     {% endwith %}
 
-    <form method="get" action="{{ url_for('favourites.search_favourites') }}">
+    <form method="get" action="{{ url_for('favourites_list.search_favourites_list') }}">
         <input type="text" name="search" placeholder="Search by name or description" value="{{ search_term }}" style="width:300px;">
         <button type="submit">Search</button>
     </form>
 
     <p>
-        <a href="{{ url_for('favourites.view_favourites') }}">Back to Favourites</a>
+        <a href="{{ url_for('favourites_list.view_favourites_list') }}">Back to Favourites</a>
     </p>
 
     {% if favourites %}
