@@ -8,6 +8,7 @@ from control.view_completed_activity_controller import view_completed_activity_c
 from control.search_completed_activity_controller import search_completed_activity_controller
 from control.view_my_donation_controller import view_my_donation_controller
 from control.search_my_donation_controller import search_my_donation_controller
+from control.view_fundraising_category_controller import view_fundraising_category_controller
 from boundary.access_control import login_required, roles_required, FUNDRAISER, PLATFORM_MANAGEMENT
 
 
@@ -215,30 +216,49 @@ def delete_activity():
 @fundraising_activity_bp.route("/activities/viewCompleted")
 def view_completed_activities():
     search_term = request.args.get("search", "").strip()
+    categoryId = request.args.get("categoryId", "").strip()
+    dateFrom = request.args.get("dateFrom", "").strip()
+    dateTo = request.args.get("dateTo", "").strip()
+    cate_controller = view_fundraising_category_controller()
     view_controller = view_completed_activity_controller()
     search_controller = search_completed_activity_controller()
+    categories = cate_controller.viewFundraisingCategory()
+    has_filter = bool(search_term or categoryId or dateFrom or dateTo)
 
-    if "search" in request.args:
-        if search_term:
-            activities = search_controller.searchCompletedActivities(search_term)
-        else:
-            flash("Activity name or description required.", "error")
-            activities = view_controller.viewCompletedActivities()
+    if has_filter:
+        activities = search_controller.searchCompletedActivities(
+            search_term,
+            categoryId,
+            dateFrom,
+            dateTo
+        )
     else:
+
         activities = view_controller.viewCompletedActivities()
 
-    if not activities:
-        flash("No activities found.", "error")
+    if dateFrom and dateTo and dateFrom > dateTo:
+        flash("Invalid date range.", "error")
         return render_template(
             "activities/view_completed_activity.html",
             activities=activities,
-            search_term=search_term
+            search_term=search_term,
+            categoryId=categoryId,
+            dateFrom=dateFrom,
+            dateTo=dateTo,
+            categories=categories
         )
+
+    if not activities:
+        flash("No activities found.", "error")
 
     return render_template(
         "activities/view_completed_activity.html",
         activities=activities,
-        search_term=search_term
+        search_term=search_term,
+        categoryId=categoryId,
+        dateFrom=dateFrom,
+        dateTo=dateTo,
+        categories=categories
     )
 
 # View and Search My Donations
@@ -247,17 +267,47 @@ def view_completed_activities():
 def view_my_donations():
     account_id = session.get("account_id")
     search_term = request.args.get("search", "").strip()
+    categoryId = request.args.get("categoryId", "").strip()
+    dateFrom = request.args.get("dateFrom", "").strip()
+    dateTo = request.args.get("dateTo", "").strip()
+    amountMin = request.args.get("amountMin", "").strip()
+    amountMax = request.args.get("amountMax", "").strip()
     viewController = view_my_donation_controller()
     searchController = search_my_donation_controller()
-    donations = viewController.viewMyDonations(account_id)
-    
-    if "search" in request.args: 
-        if search_term:
-            donations = searchController.searchMyDonations(account_id, search_term)
-        else:
-            flash("Activity name or category required.", "error")
+    cateController = view_fundraising_category_controller()
+    categories = cateController.viewFundraisingCategory()
+    has_filter = bool(search_term or categoryId or dateFrom or dateTo or amountMin or amountMax)
 
+    if has_filter:
+        donations = searchController.searchMyDonations(account_id, search_term, categoryId, dateFrom, dateTo, amountMin, amountMax)
+
+    else:
+        donations = viewController.viewMyDonations(account_id)
+
+    if dateFrom and dateTo and dateFrom > dateTo:
+        flash("Invalid date range.", "error")
+        
+        return render_template(
+        "activities/view_my_donations.html", 
+        donations=donations, 
+        search_term=search_term, 
+        categoryId=categoryId,
+        dateFrom=dateFrom,
+        dateTo=dateTo,
+        amountMin=amountMin,
+        amountMax=amountMax,
+        categories=categories)
+    
     if not donations:
         flash("No donations found.", "error")
 
-    return render_template("activities/view_my_donations.html", donations=donations, search_term=search_term)
+    return render_template(
+        "activities/view_my_donations.html", 
+        donations=donations, 
+        search_term=search_term, 
+        categoryId=categoryId,
+        dateFrom=dateFrom,
+        dateTo=dateTo,
+        amountMin=amountMin,
+        amountMax=amountMax,
+        categories=categories)
