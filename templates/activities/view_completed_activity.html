@@ -58,6 +58,18 @@
                 >
                 <button class="btn-black" type="submit">SEARCH</button>
                 <a href="{{ url_for('fundraising_activity.view_completed_activities') }}" class="btn-outline">CLEAR</a>
+                <div>
+                Filters: Category: 
+                <select name="categoryId">
+                    
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.categoryId }}" {% if category.categoryId|string == categoryId %}selected{% endif %}>{{ category.categoryName }}</option>
+                    {% endfor %}
+                </select>
+                Date From: <input type="date" id="dateFrom" name="dateFrom" value="{{ dateFrom }}"> 
+                To: <input type="date" id="dateTo" name="dateTo" value="{{ dateTo }}">
+                </div>
             </form>
         </div>
 
@@ -66,7 +78,7 @@
                 <tr>
                     <th>Completed Date</th>
                     <th>Activity Name</th>
-                    <th>Category ID</th>
+                    <th>Category</th>
                     <th>Description</th>
                     <th>Goal</th>
                     <th>Current</th>
@@ -79,7 +91,7 @@
                         <tr>
                             <td>{{ activity.endDate }}</td>
                             <td>{{ activity.activityName }}</td>
-                            <td>{{ activity.categoryId }}</td>
+                            <td>{{ activity.categoryName }}</td>
                             <td>{{ activity.activityDescription }}</td>
                             <td>${{ "%.2f"|format(activity.fundingGoal) }}</td>
                             <td>${{ "%.2f"|format(activity.fundingCurrent) }}</td>
