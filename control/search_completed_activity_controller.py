@@ -6,5 +6,5 @@ class search_completed_activity_controller:
     """
     Control class responsible for searching completed fundraising activities.
     """
-    def searchCompletedActivities(self, searchTerm: str) -> Optional["FundraisingActivity"]:
-        return FundraisingActivity.searchCompletedActivities(searchTerm)
+    def searchCompletedActivities(self, searchTerm: str, categoryId: str = "", dateFrom: str = "", dateTo: str = "") -> Optional["FundraisingActivity"]:
+        return FundraisingActivity.searchCompletedActivities(searchTerm, categoryId, dateFrom, dateTo)
