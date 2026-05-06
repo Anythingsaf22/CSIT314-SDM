@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 from db import get_connection
+from datetime import date
 import sqlite3
 
 @dataclass
@@ -18,6 +19,7 @@ class UserAccount:
     contact_number: str
     profileId: int
     accountStatus: str
+    accountCreatedDate: Optional[str]
 
     @classmethod
     def fromRow(cls, row) -> "UserAccount":
@@ -33,7 +35,8 @@ class UserAccount:
             address = row["address"],
             contact_number = row["contact_num"],
             profileId = row["profile_id"],
-            accountStatus = row["account_status"]
+            accountStatus = row["account_status"],
+            accountCreatedDate = row["account_created_date"]
             )
 
     @classmethod
@@ -68,6 +71,7 @@ class UserAccount:
         contact_number = contact_number.strip()
         accountStatus = accountStatus.strip().upper()
 
+
         if not fullName:
             raise ValueError("Full name is required.")
 
@@ -91,11 +95,11 @@ class UserAccount:
             cursor = connection.execute(
                 """
                 INSERT INTO user_account (full_name, username, password, 
-                                          DOB, address, contact_num, profile_id, account_status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                                          DOB, address, contact_num, profile_id, account_status, account_created_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (fullName, userName, passWord,
-                 birthday, address, contact_number, profileId, accountStatus)
+                 birthday, address, contact_number, profileId, accountStatus, date.today().isoformat())
 
             )
             connection.commit()
@@ -108,7 +112,8 @@ class UserAccount:
                 address = address,
                 contact_number = contact_number,
                 profileId = profileId,
-                accountStatus = accountStatus
+                accountStatus = accountStatus,
+                accountCreatedDate = date.today().isoformat()
             )
             connection.close()
             return new_account
@@ -122,7 +127,7 @@ class UserAccount:
         cursor = connection.execute(
             """
             SELECT account_id, full_name, username, password, DOB, 
-            address, contact_num, profile_id, account_status
+            address, contact_num, profile_id, account_status, account_created_date
             FROM user_account
             ORDER BY account_id
             """
@@ -143,7 +148,7 @@ class UserAccount:
         cursor = connection.execute(
             """
             SELECT account_id, full_name, username, password, DOB, 
-            address, contact_num, profile_id, account_status
+            address, contact_num, profile_id, account_status, account_created_date
             FROM user_account
             WHERE LOWER(full_name) LIKE LOWER(?)
                 OR LOWER(username) LIKE LOWER(?)
@@ -284,7 +289,7 @@ class UserAccount:
         cursor = connection.execute(
             """
             SELECT account_id, full_name, username, password, DOB,
-                   address, contact_num, profile_id, account_status
+                   address, contact_num, profile_id, account_status, account_created_date
             FROM user_account
             WHERE LOWER(username) = LOWER(?)
                 AND password = ?

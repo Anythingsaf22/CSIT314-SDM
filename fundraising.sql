@@ -24,6 +24,7 @@ Create TABLE user_account(
     contact_num TEXT NOT NULL,
     profile_id INTEGER NOT NULL,
     account_status TEXT NOT NULL check(account_status in ('ACTIVE', 'SUSPENDED', 'EXPIRED')),
+    account_created_date TEXT,
     FOREIGN KEY (profile_id) REFERENCES user_profile(profile_id)
 
 );
