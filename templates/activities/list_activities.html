@@ -87,7 +87,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Activity Title</th>
-                    <th>Category ID</th>
+                    <th>Category</th>
                     <th>Current</th>
                     <th>Goal</th>
                     <th>Status</th>
@@ -100,7 +100,7 @@
                         <tr>
                             <td>{{ activity.activityId }}</td>
                             <td>{{ activity.activityName }}</td>
-                            <td>{{ activity.categoryId }}</td>
+                            <td>{{ activity.categoryName }}</td>
                             <td>${{ "%.2f"|format(activity.fundingCurrent) }}</td>
                             <td>${{ "%.2f"|format(activity.fundingGoal) }}</td>
                             <td>
@@ -112,18 +112,22 @@
                                 <button
                                     class="btn btn-view"
                                     type="button"
-                                    onclick='openActivityModal(
-                                        {{ activity.activityName|tojson }},
-                                        {{ activity.activityStatus|tojson }},
-                                        {{ activity.fundingCurrent|tojson }},
-                                        {{ activity.fundingGoal|tojson }},
-                                        {{ activity.categoryId|tojson }},
-                                        {{ activity.endDate|tojson }},
-                                        {{ activity.activityDescription|tojson }},
-                                        {{ activity.accountId|tojson }},
-                                        {{ activity.startDate|tojson }}
-                                    )'
-                                >
+                                    data-view-count="{{ activity.viewCount }}"
+                                    onclick='openActivityModal(this,
+                                    {{ activity.activityName|tojson }},
+                                    {{ activity.activityStatus|tojson }},
+                                    {{ activity.fundingCurrent|tojson }},
+                                    {{ activity.fundingGoal|tojson }},
+                                    {{ activity.categoryName|tojson }},
+                                    {{ activity.endDate|tojson }},
+                                    {{ activity.activityDescription|tojson }},
+                                    {{ activity.fundraiserName|tojson }},
+                                    {{ activity.startDate|tojson }},
+                                    {{ activity.favouriteCount|tojson }},
+                                    {{ activity.phoneNumber|tojson }},
+                                    {{ activity.activityId|tojson }}
+                                )'
+                                >   
                                     View
                                 </button>
                                 <a href="{{ url_for('fundraising_activity.update_activity', activityId=activity.activityId) }}" class="btn btn-edit">Edit</a>
@@ -156,14 +160,17 @@
             <div id="view-status" class="status-text"></div>
             <div class="amount-row"><span>Amount Collected</span><span id="view-amount"></span></div>
             <div class="progress-container"><div id="view-progress" class="progress-fill"></div></div>
-            <p><span class="section-label">Category ID:</span> <span id="view-category"></span></p>
+            <p><span class="section-label">Category:</span> <span id="view-category"></span></p>
+            <p><span class="section-label">Total Views:</span> <span id="view-count"></span></p>
+            <p><span class="section-label">Total Favourites:</span> <span id="favourite-count"></span></p>
             <p><span class="section-label">Start Date:</span> <span id="view-start-date"></span></p>
             <p><span class="section-label">End Date:</span> <span id="view-date"></span></p>
             <p class="section-label">Description</p>
             <p id="view-description" class="desc-text"></p>
             <div class="account-section">
-                <p class="section-label">Fundraiser Account</p>
-                <p>Account ID: <span id="view-account"></span></p>
+                <p class="section-label">Fundraiser</p>
+                <p>Fundraiser: <span id="view-account"></span></p>
+                <p>Phone Number: <span id="view-phone"></span></p>
             </div>
             <div class="footer-btn"><button class="btn-outline" onclick="closeModal('detailsModal')">Close</button></div>
         </div>
@@ -188,18 +195,55 @@
     </div>
 
     <script>
-        function openActivityModal(title, status, collected, goal, category, endDate, desc, accountId, startDate) {
+        function openActivityModal(
+            button,
+            title,
+            status,
+            collected,
+            goal,
+            category,
+            endDate,
+            desc,
+            fundraiserName,
+            startDate,
+            favouriteCount,
+            phoneNumber,
+            activityId
+        ) {
+
             document.getElementById("view-title").innerText = "FRA Details: " + title;
-            document.getElementById("view-status").innerText = status.charAt(0).toUpperCase() + status.slice(1);
-            document.getElementById("view-amount").innerText = "$" + Number(collected).toFixed(2) + " / $" + Number(goal).toFixed(2);
+            document.getElementById("view-status").innerText =
+                status.charAt(0).toUpperCase() + status.slice(1);
+
+            document.getElementById("view-amount").innerText =
+                "$" + Number(collected).toFixed(2) +
+                " / $" + Number(goal).toFixed(2);
+
             document.getElementById("view-category").innerText = category;
             document.getElementById("view-start-date").innerText = startDate;
             document.getElementById("view-date").innerText = endDate;
             document.getElementById("view-description").innerText = desc;
-            document.getElementById("view-account").innerText = accountId;
+            document.getElementById("view-account").innerText = fundraiserName;
+            document.getElementById("view-phone").innerText = phoneNumber;
 
-            const percent = goal > 0 ? Math.min((collected / goal) * 100, 100) : 0;
+            let currentViewCount = Number(button.dataset.viewCount);
+            currentViewCount += 1;
+
+            button.dataset.viewCount = currentViewCount;
+
+            document.getElementById("view-count").innerText = currentViewCount;
+
+            document.getElementById("favourite-count").innerText = favouriteCount;
+
+            recordView(activityId);
+
+            const percent =
+                goal > 0
+                    ? Math.min((collected / goal) * 100, 100)
+                    : 0;
+
             document.getElementById("view-progress").style.width = percent + "%";
+
             document.getElementById("detailsModal").style.display = "flex";
         }
 
@@ -209,6 +253,12 @@
             document.getElementById("deleteActivityName").innerText = activityName;
             document.getElementById("deleteModal").style.display = "flex";
         }
+
+        function recordView(activityId) {
+            fetch("/activities/recordView/" + activityId, {
+            method: "POST"
+        });
+}
 
         function closeModal(id) {
             document.getElementById(id).style.display = "none";
