@@ -57,6 +57,22 @@
                 >
                 <button class="btn-black" type="submit">SEARCH</button>
                 <a href="{{ url_for('fundraising_activity.view_my_donations') }}" class="btn-outline">CLEAR</a>
+                <div>
+                    Filters: Category: 
+                    <select name="categoryId">
+                        
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.categoryId }}" {% if category.categoryId|string == categoryId %}selected{% endif %}>{{ category.categoryName }}</option>
+                        {% endfor %}
+                    </select>
+                    Date From: <input type="date" id="dateFrom" name="dateFrom" value="{{ dateFrom }}"> 
+                    To: <input type="date" id="dateTo" name="dateTo" value="{{ dateTo }}">
+                </div>
+                <div>
+                    Amount Min: <input type="text" id="amountMin" name="amountMin" value="{{ amountMin }}"> 
+                    Max: <input type="text" id="amountMax" name="amountMax" value="{{ amountMax }}">
+                </div>
             </form>
         </div>
 
