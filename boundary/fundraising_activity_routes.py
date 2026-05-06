@@ -214,14 +214,32 @@ def delete_activity():
 # VIEW COMPLETED ACTIVITIES
 @fundraising_activity_bp.route("/activities/viewCompleted")
 def view_completed_activities():
-    controller = view_completed_activity_controller()
-    activities = controller.viewCompletedActivities()
+    search_term = request.args.get("search", "").strip()
+    view_controller = view_completed_activity_controller()
+    search_controller = search_completed_activity_controller()
+
+    if "search" in request.args:
+        if search_term:
+            activities = search_controller.searchCompletedActivities(search_term)
+        else:
+            flash("Activity name or description required.", "error")
+            activities = view_controller.viewCompletedActivities()
+    else:
+        activities = view_controller.viewCompletedActivities()
 
     if not activities:
         flash("No activities found.", "error")
-        return render_template("activities/view_completed_activity.html")
+        return render_template(
+            "activities/view_completed_activity.html",
+            activities=activities,
+            search_term=search_term
+        )
 
-    return render_template("activities/view_completed_activity.html", activities=activities)
+    return render_template(
+        "activities/view_completed_activity.html",
+        activities=activities,
+        search_term=search_term
+    )
 
 # View and Search My Donations
 @fundraising_activity_bp.route("/activities/myDonations")

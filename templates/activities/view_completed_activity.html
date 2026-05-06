@@ -1,48 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>View Completed Activities</title>
+    <title>Completed Activities History</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #fff; }
+        .header { background: #e0e0e0; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        nav { background: #fff; border-bottom: 2px solid #000; padding: 0 20px; }
+        nav a { text-decoration: none; color: black; padding: 15px; display: inline-block; font-weight: bold; }
+        nav a.active { border-bottom: 4px solid black; }
+        .content { padding: 30px; }
+        .toolbar { border-bottom: 1px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
+        .search-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .search-form label { font-weight: bold; }
+        .search-form input { width: 300px; padding: 8px; border: 1px solid #000; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #d9d9d9; padding: 12px; border: 1px solid #000; text-align: left; }
+        td { padding: 12px; border: 1px solid #000; vertical-align: top; }
+        .btn-black { background: black; color: white; padding: 8px 20px; text-decoration: none; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-outline { background: white; color: black; padding: 8px 20px; text-decoration: none; border: 1px solid black; cursor: pointer; border-radius: 4px; }
+        .message { padding: 12px; margin-bottom: 16px; border: 1px solid #777; font-weight: bold; }
+        .message.success { background: #e6f4ea; color: #2e7d32; border-color: #2e7d32; }
+        .message.error { background: #fdecea; color: #c62828; border-color: #c62828; }
+        .status-completed { color: #1a4f8f; font-weight: bold; }
+        .empty-row { text-align: center; color: #666; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <h1>Completed Fundraising Activities</h1>
+    <div class="header">
+        <h2>Online Fundraising System</h2>
+        <div>Welcome, {{ session.get('user_name', 'Guest') }} | <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+    </div>
+    <nav>
+        <a href="{{ url_for('fundraising_activity.list_activities') }}">My Activities</a>
+        <a href="{{ url_for('fundraising_activity.view_completed_activities') }}" class="active">Completed</a>
+        <a href="{{ url_for('fundraising_activity.view_my_donations') }}">My Donations</a>
+    </nav>
+    <div class="content">
+        <h3>Completed Activities History</h3>
 
-    {% if activities %}
-        <table border="1">
+        {% with messages = get_flashed_messages(with_categories = true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="toolbar">
+            <form class="search-form" method="get" action="{{ url_for('fundraising_activity.view_completed_activities') }}">
+                <label for="search">Search:</label>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Activity name or description"
+                    value="{{ search_term }}"
+                >
+                <button class="btn-black" type="submit">SEARCH</button>
+                <a href="{{ url_for('fundraising_activity.view_completed_activities') }}" class="btn-outline">CLEAR</a>
+            </form>
+        </div>
+
+        <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Account</th>
-                    <th>Category</th>
-                    <th>Name</th>
+                    <th>Completed Date</th>
+                    <th>Activity Name</th>
+                    <th>Category ID</th>
                     <th>Description</th>
                     <th>Goal</th>
                     <th>Current</th>
                     <th>Status</th>
-                    <th>Start</th>
-                    <th>End</th>
                 </tr>
             </thead>
             <tbody>
-                {% for a in activities %}
-                <tr>
-                    <td>{{ a.activityId }}</td>
-                    <td>{{ a.accountId }}</td>
-                    <td>{{ a.categoryId }}</td>
-                    <td>{{ a.activityName }}</td>
-                    <td>{{ a.activityDescription }}</td>
-                    <td>{{ a.fundingGoal }}</td>
-                    <td>{{ a.fundingCurrent }}</td>
-                    <td>{{ a.activityStatus }}</td>
-                    <td>{{ a.startDate }}</td>
-                    <td>{{ a.endDate }}</td>
-                </tr>
-                {% endfor %}
+                {% if activities %}
+                    {% for activity in activities %}
+                        <tr>
+                            <td>{{ activity.endDate }}</td>
+                            <td>{{ activity.activityName }}</td>
+                            <td>{{ activity.categoryId }}</td>
+                            <td>{{ activity.activityDescription }}</td>
+                            <td>${{ "%.2f"|format(activity.fundingGoal) }}</td>
+                            <td>${{ "%.2f"|format(activity.fundingCurrent) }}</td>
+                            <td><span class="status-completed">{{ activity.activityStatus.title() }}</span></td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td class="empty-row" colspan="7">No completed activities found.</td>
+                    </tr>
+                {% endif %}
             </tbody>
         </table>
-    {% else %}
-        <p>No activities available.</p>
-    {% endif %}
-
-    <p><a href="{{ url_for('fundraising_activity.list_activities') }}">Back</a></p>
+    </div>
 </body>
 </html>
