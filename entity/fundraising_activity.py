@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 from db import get_connection
+from datetime import datetime
 import sqlite3
 
 @dataclass
@@ -111,11 +112,35 @@ class FundraisingActivity:
         """
         connection = get_connection()
         cursor = connection.execute(
-            """
-            SELECT * FROM fundraising_activity
-            ORDER BY activity_id
-            """
-        )
+    """
+    SELECT 
+        fra.*,
+
+        (
+            SELECT COUNT(*)
+            FROM favourite_list fl
+            WHERE fl.activity_id = fra.activity_id
+        ) AS favourite_count,
+
+        (
+            SELECT COUNT(*)
+            FROM activity_view av
+            WHERE av.activity_id = fra.activity_id
+        ) AS view_count,
+
+        c.category_name,
+        a.full_name AS fundraiser_name,
+        a.contact_num AS fundraiser_phone
+
+        FROM fundraising_activity fra
+        JOIN user_account a 
+            ON fra.account_id = a.account_id
+        JOIN category c 
+            ON fra.category_id = c.category_id
+
+        ORDER BY fra.activity_id
+        """
+    )
         rows = cursor.fetchall()
         connection.close()
 
@@ -255,13 +280,9 @@ class FundraisingActivity:
         connection = get_connection()
 
         query = """
-            SELECT 
-                fra.*,
-                c.category_name
-            FROM fundraising_activity fra
-            JOIN category c
-                ON fra.category_id = c.category_id
-            WHERE fra.activity_status = 'completed'
+            SELECT *
+            FROM fundraising_activity
+            WHERE activity_status = 'completed'
         """
 
         params = []
@@ -323,3 +344,33 @@ class FundraisingActivity:
         connection.close()
 
         return [cls.fromRow(row) for row in rows]
+
+
+    @classmethod
+    def recordView(cls, accountId: int, activityId: int) -> None:
+        connection = get_connection()
+
+        cursor = connection.execute(
+            "SELECT MAX(viewing_id) FROM activity_view"
+        )
+
+        maxId = cursor.fetchone()[0]
+
+        if maxId is None:
+            newId = 1
+        else:
+            newId = maxId + 1
+
+        viewingDate = datetime.now().strftime("%Y-%m-%d")
+
+        connection.execute(
+            """
+            INSERT INTO activity_view
+            (viewing_id, account_id, activity_id, viewing_date)
+            VALUES (?, ?, ?, ?)
+            """,
+            (newId, accountId, activityId, viewingDate)
+        )
+
+        connection.commit()
+        connection.close()
