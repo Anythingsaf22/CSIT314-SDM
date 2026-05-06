@@ -9,6 +9,7 @@ from control.search_completed_activity_controller import search_completed_activi
 from control.view_my_donation_controller import view_my_donation_controller
 from control.search_my_donation_controller import search_my_donation_controller
 from control.view_fundraising_category_controller import view_fundraising_category_controller
+from control.fundraising_activity_view_record_controller import fundraising_activity_view_record_controller
 from boundary.access_control import login_required, roles_required, FUNDRAISER, PLATFORM_MANAGEMENT
 
 
@@ -311,3 +312,14 @@ def view_my_donations():
         amountMin=amountMin,
         amountMax=amountMax,
         categories=categories)
+
+# Record Activity View
+@fundraising_activity_bp.route("/activities/recordView/<int:activity_id>", methods=["POST"])
+@login_required
+def record_activity_view(activity_id):
+    account_id = session.get("account_id")
+
+    controller = fundraising_activity_view_record_controller()
+    controller.recordActivityView(account_id, activity_id)
+
+    return "", 204
