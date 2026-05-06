@@ -255,9 +255,13 @@ class FundraisingActivity:
         connection = get_connection()
 
         query = """
-            SELECT *
-            FROM fundraising_activity
-            WHERE activity_status = 'completed'
+            SELECT 
+                fra.*,
+                c.category_name
+            FROM fundraising_activity fra
+            JOIN category c
+                ON fra.category_id = c.category_id
+            WHERE fra.activity_status = 'completed'
         """
 
         params = []
