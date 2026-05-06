@@ -6,5 +6,5 @@ class search_my_donation_controller:
     """
     Control class responsible for searching my donations.
     """
-    def searchMyDonations(self, account_id: int, searchTerm: str) -> Optional["donation"]:
-        return donation.searchMyDonations(account_id, searchTerm)
+    def searchMyDonations(self, account_id: int, searchTerm: str, categoryId: str = "", dateFrom: str = "", dateTo: str = "", amountMin: str = "", amountMax: str = "") -> Optional["donation"]:
+        return donation.searchMyDonations(account_id, searchTerm, categoryId, dateFrom, dateTo, amountMin, amountMax)
