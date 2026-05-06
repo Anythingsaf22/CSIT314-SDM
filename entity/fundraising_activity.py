@@ -20,6 +20,9 @@ class FundraisingActivity:
     endDate: str
     viewCount: int = 0
     favouriteCount: int = 0
+    categoryName: Optional[str] = None
+    fundraiserName: Optional[str] = None
+    phoneNumber: Optional[str] = None    
 
     @classmethod
     def fromRow(cls, row) -> "FundraisingActivity":
@@ -39,7 +42,10 @@ class FundraisingActivity:
             endDate=row["end_date"],
             activityStatus=row["activity_status"],
             viewCount=row["view_count"] if "view_count" in row_keys else 0,
-            favouriteCount=row["favourite_count"] if "favourite_count" in row_keys else 0
+            favouriteCount=row["favourite_count"] if "favourite_count" in row_keys else 0,
+            categoryName=row["category_name"] if "category_name" in row_keys else None,
+            fundraiserName=row["fundraiser_name"] if "fundraiser_name" in row_keys else None,
+            phoneNumber=row["fundraiser_phone"] if "fundraiser_phone" in row_keys else None,
         )
 
     @classmethod
@@ -242,24 +248,53 @@ class FundraisingActivity:
         finally:
             connection.close()
         
-    @classmethod
-    def searchCompletedActivities(cls, searchTerm: str) -> List["FundraisingActivity"]:
-        """
-        Search completed activities by name or description 
-        """
-        connection = get_connection()
-        keyword = f"%{searchTerm.strip()}%"
-        cursor = connection.execute(
-            """
-            SELECT * FROM fundraising_activity
-            WHERE activity_status = 'completed'
-              AND (LOWER(activity_name) LIKE LOWER(?)
-                   OR LOWER(activity_desc) LIKE LOWER(?))
-            ORDER BY activity_id
-            """,
-            (keyword, keyword)
-        )
 
+    @classmethod
+    def searchCompletedActivities(cls, keyword: str = "", categoryId: str = "", dateFrom: str = "", dateTo: str = "") -> List["FundraisingActivity"]:
+
+        connection = get_connection()
+
+        query = """
+            SELECT *
+            FROM fundraising_activity
+            WHERE activity_status = 'completed'
+        """
+
+        params = []
+
+        if keyword.strip():
+            searchKeyword = f"%{keyword.strip()}%"
+            query += """
+                AND (
+                    LOWER(activity_name) LIKE LOWER(?)
+                    OR LOWER(activity_desc) LIKE LOWER(?)
+                )
+            """
+            params.extend([searchKeyword, searchKeyword])
+
+        if categoryId:
+            query += """
+                AND category_id = ?
+            """
+            params.append(categoryId)
+
+        if dateFrom:
+            query += """
+                AND end_date >= ?
+            """
+            params.append(dateFrom)
+
+        if dateTo:
+            query += """
+                AND end_date <= ?
+            """
+            params.append(dateTo)
+
+        query += """
+            ORDER BY end_date DESC
+        """
+
+        cursor = connection.execute(query, tuple(params))
         rows = cursor.fetchall()
         connection.close()
 
@@ -273,9 +308,10 @@ class FundraisingActivity:
         connection = get_connection()
         cursor = connection.execute(
             """
-            SELECT * FROM fundraising_activity
-            WHERE activity_status = 'completed'
-            ORDER BY activity_id
+            SELECT fra.*, c.category_name FROM fundraising_activity fra
+            JOIN category c ON fra.category_id = c.category_id
+            WHERE fra.activity_status = 'completed'
+            ORDER BY fra.activity_id
             """
         )
 

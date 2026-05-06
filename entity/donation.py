@@ -51,23 +51,83 @@ class donation:
         return [cls.fromRow(row) for row in rows]
     
     @classmethod
-    def searchMyDonations(cls, accountId: int, searchTerm: str) -> List["donation"]:
-        """
-        Search for donations based on the search term and return them as a list of donation instances.
-        The search term is matched against the activity name and category name.
-        """
+    def searchMyDonations(cls, accountId: int, searchTerm: str = "", categoryId: str = "", dateFrom: str = "", dateTo: str = "", amountMin: str = "", amountMax: str = "") -> List["donation"]:
+
         connection = get_connection()
-        cursor = connection.execute(
-            """
-            SELECT d.donation_id, d.account_id, d.activity_id, fra.activity_name, c.category_name, d.donation_amount, d.donation_date
+
+        query = """
+            SELECT
+                d.donation_id,
+                d.account_id,
+                d.activity_id,
+                fra.activity_name,
+                c.category_name,
+                d.donation_amount,
+                d.donation_date
             FROM donation d
-            JOIN fundraising_activity fra ON d.activity_id = fra.activity_id
-            JOIN category c ON fra.category_id = c.category_id
+            JOIN fundraising_activity fra
+                ON d.activity_id = fra.activity_id
+            JOIN category c
+                ON fra.category_id = c.category_id
             WHERE d.account_id = ?
-            AND (LOWER(fra.activity_name) LIKE LOWER(?) OR LOWER(c.category_name) LIKE LOWER(?))
-            """, (accountId, f"%{searchTerm}%", f"%{searchTerm}%")
-        )
+        """
+
+        params = [accountId]
+
+        # keyword
+        if searchTerm.strip():
+            keyword = f"%{searchTerm.strip()}%"
+            query += """
+                AND (
+                    LOWER(fra.activity_name) LIKE LOWER(?)
+                    OR LOWER(c.category_name) LIKE LOWER(?)
+                )
+            """
+            params.extend([keyword, keyword])
+
+        # category
+        if categoryId:
+            query += """
+                AND c.category_id = ?
+            """
+            params.append(categoryId)
+
+        # date from
+        if dateFrom:
+            query += """
+                AND d.donation_date >= ?
+            """
+            params.append(dateFrom)
+
+        # date to
+        if dateTo:
+            query += """
+                AND d.donation_date <= ?
+            """
+            params.append(dateTo)
+
+        # amount min
+        if amountMin:
+            query += """
+                AND d.donation_amount >= ?
+            """
+            params.append(amountMin)
+
+        # amount max
+        if amountMax:
+            query += """
+                AND d.donation_amount <= ?
+            """
+            params.append(amountMax)
+
+        query += """
+            ORDER BY d.donation_date DESC
+        """
+
+        cursor = connection.execute(query, tuple(params))
 
         rows = cursor.fetchall()
+
         connection.close()
+
         return [cls.fromRow(row) for row in rows]
