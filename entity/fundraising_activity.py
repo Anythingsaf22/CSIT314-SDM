@@ -26,6 +26,7 @@ class FundraisingActivity:
         """
         Create a FundraisingActivity instance from a database row
         """
+        row_keys = row.keys()
         return cls(
             activityId=row["activity_id"],
             accountId=row["account_id"],
@@ -37,8 +38,8 @@ class FundraisingActivity:
             startDate=row["start_date"],
             endDate=row["end_date"],
             activityStatus=row["activity_status"],
-            viewCount=row["view_count"],
-            favouriteCount=row["favourite_count"]
+            viewCount=row["view_count"] if "view_count" in row_keys else 0,
+            favouriteCount=row["favourite_count"] if "favourite_count" in row_keys else 0
         )
 
     @classmethod
@@ -113,6 +114,27 @@ class FundraisingActivity:
         connection.close()
 
         return [cls.fromRow(row) for row in rows]
+
+    @classmethod
+    def getActivityById(cls, activityId: int) -> Optional["FundraisingActivity"]:
+        """
+        Return one fundraising activity by activity ID.
+        """
+        connection = get_connection()
+        cursor = connection.execute(
+            """
+            SELECT * FROM fundraising_activity
+            WHERE activity_id = ?
+            """,
+            (activityId,)
+        )
+        row = cursor.fetchone()
+        connection.close()
+
+        if not row:
+            return None
+
+        return cls.fromRow(row)
 
     @classmethod
     def searchActivities(cls, searchTerm: str) -> List["FundraisingActivity"]:

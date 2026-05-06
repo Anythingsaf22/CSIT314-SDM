@@ -23,24 +23,27 @@ def home():
 def list_activities():
     search_term = request.args.get("search", "")
     search_completed_term = request.args.get("searchCompleted", "")
-    searchController = search_fundraising_activity_controller()
-    searchCompletedController = search_completed_activity_controller()
 
     if "search" in request.args:
         if search_term.strip():
+            searchController = search_fundraising_activity_controller()
             activities = searchController.searchActivities(search_term)
         else:
             flash("Activity name or description required.", "error")
-            activities = []
+            controller = view_fundraising_activity_controller()
+            activities = controller.viewActivities()
 
     elif "searchCompleted" in request.args:
         if search_completed_term.strip():
+            searchCompletedController = search_completed_activity_controller()
             activities = searchCompletedController.searchCompletedActivities(search_completed_term)
         else:
             flash("Activity name or description required.", "error")
-            activities = []
+            controller = view_completed_activity_controller()
+            activities = controller.viewCompletedActivities()
     else:
-        activities = 0
+        controller = view_fundraising_activity_controller()
+        activities = controller.viewActivities()
     
     return render_template(
         "activities/list_activities.html",
@@ -118,6 +121,19 @@ def view_activity():
 @roles_required(PLATFORM_MANAGEMENT, FUNDRAISER)
 def update_activity():
     controller = update_fundraising_activity_controller()
+    view_controller = view_fundraising_activity_controller()
+    activity = None
+
+    selected_activity_id = request.args.get("activityId", "").strip()
+    if selected_activity_id:
+        try:
+            activity = view_controller.viewActivityById(int(selected_activity_id))
+        except ValueError:
+            flash("Invalid activity ID.", "error")
+            return render_template("activities/update_activity.html", activity=activity)
+
+        if not activity:
+            flash("Activity ID does not exist.", "error")
 
     if request.method == "POST":
         activity_id = request.form.get("activityId", "").strip()
@@ -128,18 +144,36 @@ def update_activity():
 
         if not activity_id:
             flash("Activity ID is required.", "error")
-            return render_template("activities/update_activity.html")
-
-        if not name:
-            flash("Activity name is required.", "error")
-            return render_template("activities/update_activity.html")
+            return render_template("activities/update_activity.html", activity=activity)
 
         try:
             activity_id = int(activity_id)
+        except ValueError:
+            flash("Invalid activity ID.", "error")
+            return render_template("activities/update_activity.html", activity=activity)
+
+        activity = view_controller.viewActivityById(activity_id)
+        if not activity:
+            flash("Activity ID does not exist.", "error")
+            return render_template("activities/update_activity.html", activity=activity)
+
+        if not name:
+            flash("Activity name is required.", "error")
+            return render_template("activities/update_activity.html", activity=activity)
+
+        if not goal:
+            flash("Funding goal is required.", "error")
+            return render_template("activities/update_activity.html", activity=activity)
+
+        if not status:
+            flash("Status is required.", "error")
+            return render_template("activities/update_activity.html", activity=activity)
+
+        try:
             goal = float(goal)
         except ValueError:
             flash("Invalid numeric input.", "error")
-            return render_template("activities/update_activity.html")
+            return render_template("activities/update_activity.html", activity=activity)
 
         success, message = controller.updateActivity(
             activity_id, name, desc, goal, status
@@ -151,7 +185,7 @@ def update_activity():
 
         flash(message, "error")
 
-    return render_template("activities/update_activity.html")
+    return render_template("activities/update_activity.html", activity=activity)
 
 
 # DELETE

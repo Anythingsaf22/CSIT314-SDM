@@ -11,3 +11,9 @@ class view_fundraising_activity_controller:
         Retrieve all Fundraising Activity object.
         """
         return FundraisingActivity.getAllActivities()
+
+    def viewActivityById(self, activity_id: int) -> Optional["FundraisingActivity"]:
+        """
+        Retrieve one Fundraising Activity object by activity ID.
+        """
+        return FundraisingActivity.getActivityById(activity_id)
