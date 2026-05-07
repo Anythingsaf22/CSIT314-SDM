@@ -210,6 +210,9 @@
             <a class="tab" href="{{ url_for('user_account.list_accounts') }}">Accounts</a>
             <a class="tab" href="{{ url_for('fundraising_category.main_page') }}">Categories</a>
             <a class="tab" href="{{ url_for('fundraising_activity.list_activities') }}">Activities</a>
+            {% if session.get("profile_id") in [4, 5] %}
+            <a class="tab" href="{{ url_for('platform_report.view_reports') }}">Reports</a>
+            {% endif %}
             {% if session.get("account_id") %}
             <a class="tab" href="{{ url_for('favourites_list.view_favourites_list') }}">Favourites</a>
             {% endif %}
@@ -281,6 +284,20 @@
                     </p>
                     <a class="open-button" href="{{ url_for('fundraising_activity.list_activities') }}">Open Module</a>
                 </div>
+
+                {% if session.get("profile_id") in [4, 5] %}
+                <div class="module-row">
+                    <div>
+                        <p class="module-name">Platform Reports</p>
+                    </div>
+                    <p class="module-copy">
+                        Generate daily, weekly, and monthly platform performance reports
+                        covering donations, user logins, active campaigns, completed campaigns,
+                        and the most active category.
+                    </p>
+                    <a class="open-button" href="{{ url_for('platform_report.view_reports') }}">Open Module</a>
+                </div>
+                {% endif %}
 
                 <div class="module-row">
                     <div>

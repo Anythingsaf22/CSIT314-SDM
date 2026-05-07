@@ -28,10 +28,10 @@ class PlatformReport:
     @classmethod
     def generateWeeklyReport(cls, dateFrom: str, dateTo: str) -> "PlatformReport":
         return cls.generateReportInDateRange(
-            reprotType = "weekly",
-            reportTitle = f"Weekly Report ({dateFrom} to {dateTo})",
-            startDate = dateFrom,
-            endDate = dateTo
+            reportType="weekly",
+            reportTitle=f"Weekly Report ({dateFrom} to {dateTo})",
+            startDate=dateFrom,
+            endDate=dateTo
         )
 
     @classmethod
@@ -40,10 +40,10 @@ class PlatformReport:
         endDate = date(selectedYear, selectedMonth, monthrange(selectedYear, selectedMonth)[1]).isoformat()
 
         return cls.generateReportInDateRange(
-            reportType = "monthly",
-            reportTitle = f"Monthly Report ({selectedYear} - {selectedMonth:02d})",
-            startDate = startDate,
-            endDate = endDate
+            reportType="monthly",
+            reportTitle=f"Monthly Report ({selectedYear}-{selectedMonth:02d})",
+            startDate=startDate,
+            endDate=endDate
         )
 
     @classmethod
@@ -94,25 +94,26 @@ class PlatformReport:
                    COALESCE(SUM(d.donation_amount), 0) AS total_amount
             FROM donation d
             JOIN fundraising_activity fa
-                ON d.activity_id = fa.category_id
+                ON d.activity_id = fa.activity_id
             JOIN category c
                 ON fa.category_id = c.category_id
             WHERE d.donation_date BETWEEN ? AND ?
             GROUP BY c.category_id, c.category_name
-            ORDER BY total_amount DESC, c. category_name ASC LIMIT 1
+            ORDER BY total_amount DESC, c.category_name ASC
+            LIMIT 1
             """,
             (startDate, endDate)
         ).fetchone()
 
         connection.close()
         return cls(
-            reportType = reportType,
-            reportTitle = reportTitle,
-            startDate = startDate,
-            endDate = endDate,
-            totalDonationsCollected = float(donationsRow["total_donations"]),
-            totalUserLogins = int(loginsRow["total_logins"]),
-            totalActiveFundraisingActivities = int(activeActivitiesRow["total_active"]),
-            totalCompletedActivities = int(completedActivitiesRow["total_completed"]),
-            mostActiveCategory = categoryRow["category_name"] if categoryRow else None,
-            )
+            reportType=reportType,
+            reportTitle=reportTitle,
+            startDate=startDate,
+            endDate=endDate,
+            totalDonationsCollected=float(donationsRow["total_donations"]),
+            totalUserLogins=int(loginsRow["total_logins"]),
+            totalActiveFundraisingActivities=int(activeActivitiesRow["total_active"]),
+            totalCompletedActivities=int(completedActivitiesRow["total_completed"]),
+            mostActiveCategory=categoryRow["category_name"] if categoryRow else None,
+        )

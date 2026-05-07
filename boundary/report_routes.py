@@ -4,12 +4,15 @@ from control.view_platform_report_controller import view_platform_report_control
 
 
 platform_report_bp = Blueprint('platform_report', __name__)
+
+
 @platform_report_bp.route("/reports")
 @roles_required(PLATFORM_MANAGEMENT)
 def view_reports():
-    reportType = request.arg.get("type", "daily").strip().lower()
+    reportType = request.args.get("type", "daily").strip().lower()
     controller = view_platform_report_controller()
     report = None
+
     if reportType not in ["daily", "weekly", "monthly"]:
         reportType = "daily"
         flash("Invalid report type.", "error")
@@ -29,15 +32,16 @@ def view_reports():
             success, message, report = controller.generateWeeklyReport(weeklyFrom, weeklyTo)
         else:
             success, message, report = controller.generateMonthlyReport(monthlyMonth, monthlyYear)
+
         flash(message, "success" if success else "error")
 
     return render_template(
         "reports/platform_reports.html",
-        active_tab = reportType,
-        report = report,
-        daily_date = dailyDate,
-        weekly_from = weeklyFrom,
-        weekly_to = weeklyTo,
-        monthly_month = monthlyMonth,
-        monthly_year = monthlyYear
+        active_tab=reportType,
+        report=report,
+        daily_date=dailyDate,
+        weekly_from=weeklyFrom,
+        weekly_to=weeklyTo,
+        monthly_month=monthlyMonth,
+        monthly_year=monthlyYear
     )
