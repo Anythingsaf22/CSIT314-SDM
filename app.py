@@ -5,6 +5,7 @@ from boundary.fundraising_activity_routes import fundraising_activity_bp
 from boundary.user_account_routes import user_account_bp
 from boundary.auth_routes import auth_bp
 from boundary.favourite_list_routes import favourite_list_bp
+from boundary.report_routes import platform_report_bp
 
 def create_app():
     app = Flask(__name__)
@@ -20,6 +21,8 @@ def create_app():
     app.register_blueprint(user_account_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(favourite_list_bp)
+    app.register_blueprint(platform_report_bp)
+
     return app
 
 if __name__ == "__main__":
