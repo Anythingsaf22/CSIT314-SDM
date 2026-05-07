@@ -59,6 +59,8 @@ def list_activities():
 @roles_required(PLATFORM_MANAGEMENT, FUNDRAISER)
 def create_activity():
     controller = create_fundraising_activity_controller()
+    cateController = view_fundraising_category_controller()
+    categories = cateController.viewFundraisingCategory()
 
     if request.method == "POST":
         account_id = request.form.get("accountId", "").strip()
@@ -71,19 +73,19 @@ def create_activity():
 
         if not account_id:
             flash("Account ID is required.", "error")
-            return render_template("activities/create_activity.html")
+            return render_template("activities/create_activity.html" , categories=categories)
 
         if not category_id:
             flash("Category ID is required.", "error")
-            return render_template("activities/create_activity.html")
+            return render_template("activities/create_activity.html" , categories=categories)
 
         if not name:
             flash("Activity name is required.", "error")
-            return render_template("activities/create_activity.html")
+            return render_template("activities/create_activity.html" , categories=categories)
 
         if not goal:
             flash("Funding goal is required.", "error")
-            return render_template("activities/create_activity.html")
+            return render_template("activities/create_activity.html" , categories=categories)
 
         try:
             account_id = int(account_id)
@@ -91,7 +93,7 @@ def create_activity():
             goal = float(goal)
         except ValueError:
             flash("Invalid numeric input.", "error")
-            return render_template("activities/create_activity.html")
+            return render_template("activities/create_activity.html" , categories=categories)
 
         success, message = controller.createActivity(
             account_id, category_id, name, desc, goal, start_date, end_date
@@ -103,7 +105,7 @@ def create_activity():
 
         flash(message, "error")
 
-    return render_template("activities/create_activity.html")
+    return render_template("activities/create_activity.html", categories=categories)
 
 # VIEW
 @fundraising_activity_bp.route("/activities/view")
