@@ -16,16 +16,28 @@ favourite_list_bp = Blueprint("favourites_list", __name__)
 @roles_required(DONOR)
 def view_favourites_list():
     account_id = session.get("account_id")
+    search_term = request.args.get("search", "").strip()
+    searchController = search_favourite_list_controller()
+    viewController = view_favourite_list_controller()
 
-    controller = view_favourite_list_controller()
-    favourites = controller.viewFavourites(account_id)
+    favourites = viewController.viewFavourites(account_id)
 
+    if "search" in request.args:
+        if search_term:
+            favourites = searchController.searchFavourites(account_id, search_term)
+        else:
+            flash("Activity name or description required.", "error")
+
+    if not favourites and search_term:
+        flash("No matching favourite activities found.", "error")
+        
     if not favourites:
         flash("No favourite activities found.", "error")
 
     return render_template(
         "favourites/view_favourites_list.html",
-        favourites=favourites
+        favourites=favourites,
+        search_term=search_term
     )
 
 
