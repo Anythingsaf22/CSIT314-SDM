@@ -56,7 +56,12 @@
                     value="{{ search_term }}"
                 >
                 <button class="btn-black" type="submit">SEARCH</button>
-                <a href="{{ url_for('fundraising_activity.view_my_donations') }}" class="btn-outline">CLEAR</a>
+                <button 
+                    type="button"
+                    class="btn-outline"
+                    onclick="window.location.href='{{ url_for('fundraising_activity.view_my_donations') }}'">
+                    CLEAR
+                </button>
                 <div>
                     Filters: Category: 
                     <select name="categoryId">
