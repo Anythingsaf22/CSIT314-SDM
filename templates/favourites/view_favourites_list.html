@@ -33,7 +33,7 @@
 <body>
     <div class="header">
         <h2>Online Fundraising System</h2>
-        <div>Welcome, {{ session['username'] }} | <a href="{{ url_for('auth.logout') }}">Logout</a></div>
+        <div>Welcome, {{ session.get('user_name', 'Guest') }} | <a href="{{ url_for('auth.logout') }}">Logout</a></div>
     </div>
     <nav>
         <a href="{{ url_for('fundraising_activity.list_activities') }}">Browse Activities</a>
