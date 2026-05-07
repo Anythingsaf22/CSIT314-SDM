@@ -63,8 +63,13 @@
             </div>
 
             <div class="form-group">
-                <label for="categoryId">Category ID:</label>
-                <input type="number" id="categoryId" name="categoryId" required>
+                <label for="categoryId">Category:</label>
+                <select id="categoryId" name="categoryId" required>
+                    <option value="">Select a category</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.categoryName }}</option>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="form-group">
