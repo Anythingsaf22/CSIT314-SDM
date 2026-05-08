@@ -20,6 +20,7 @@
         .btn-view { background: #000; color: white; }
         .btn-edit { background: #333; color: white; }
         .btn-delete { background: #b00020; color: white; }
+        .btn-Fav { background: #d4a017; color: white; }
         .btn-outline { background: white; color: black; border: 1px solid black; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .status-ongoing { color: green; font-weight: bold; }
         .status-completed { color: #1a4f8f; font-weight: bold; }
@@ -113,6 +114,7 @@
                                     class="btn btn-view"
                                     type="button"
                                     data-view-count="{{ activity.viewCount }}"
+                                    data-favourite-count="{{ activity.favouriteCount }}"
                                     onclick='openActivityModal(this,
                                     {{ activity.activityName|tojson }},
                                     {{ activity.activityStatus|tojson }},
@@ -137,6 +139,11 @@
                                     onclick='openDeleteActivityModal({{ activity.activityId|tojson }}, {{ activity.activityName|tojson }})'
                                 >
                                     Delete
+                                </button>
+                                <button class="btn btn-Fav"
+                                    type="button"
+                                    onclick='openAddFavModal({{ activity.activityId|tojson }}, {{ activity.activityName|tojson }})'> 
+                                    Add to Favourite 
                                 </button>
                             </td>
                         </tr>
@@ -194,6 +201,20 @@
         </div>
     </div>
 
+    <div id="addFavModal" class="modal-overlay">
+        <div class="modal-simple">
+            <h3>Added to Favourites</h3>
+            <p id="addFavMessage"></p>
+            <div class="modal-actions">
+                <button class="btn btn-black"
+                        type="button"
+                        onclick="closeModal('addFavModal')">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function openActivityModal(
             button,
@@ -233,7 +254,7 @@
 
             document.getElementById("view-count").innerText = currentViewCount;
 
-            document.getElementById("favourite-count").innerText = favouriteCount;
+            document.getElementById("favourite-count").innerText = Number(button.dataset.favouriteCount);
 
             recordView(activityId);
 
@@ -252,6 +273,40 @@
             document.getElementById("deleteActivityIdText").innerText = activityId;
             document.getElementById("deleteActivityName").innerText = activityName;
             document.getElementById("deleteModal").style.display = "flex";
+        }
+
+        function openAddFavModal(activityId, activityName) {
+            fetch("{{ url_for('favourites_list.add_favourite_list') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "activityId=" + encodeURIComponent(activityId)
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                const msg = document.getElementById("addFavMessage");
+
+                if (data.success) {
+                    msg.innerText =
+                        `"${activityName}" has been added to your favourite list.`;
+                    const viewButtons = document.querySelectorAll(".btn-view");
+
+                    viewButtons.forEach(button => {
+                        if (button.getAttribute("onclick").includes(activityId)) {
+                            let currentFavCount = Number(button.dataset.favouriteCount);
+                            currentFavCount += 1;
+                            button.dataset.favouriteCount = currentFavCount;
+                        }
+                    });
+                }
+                else {
+                    msg.innerText = data.message;
+                }
+
+                document.getElementById("addFavModal").style.display = "flex";
+            });
         }
 
         function recordView(activityId) {
