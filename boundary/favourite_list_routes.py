@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, flash, redirect, url_for
+from flask import Blueprint, render_template, request, session, flash, redirect, url_for, jsonify
 from control.add_favourite_list_controller import add_favourite_list_controller
 from control.view_favourite_list_controller import view_favourite_list_controller
 from control.search_favourite_list_controller import search_favourite_list_controller
@@ -75,24 +75,20 @@ def search_favourites_list():
 # =========================
 @favourite_list_bp.route("/favourites/add", methods=["POST"])
 @login_required
-@roles_required(DONOR)
 def add_favourite_list():
+    if session.get("profile_id") != DONOR:
+        return jsonify({
+            "success": False,
+            "message": "You do not have permission to access."
+        }), 403
+
     account_id = session.get("account_id")
-    activity_id = request.form.get("activityId", "").strip()
-
-    if not activity_id:
-        flash("Activity ID is required.", "error")
-        return redirect(url_for("fundraising_activity.list_activities"))
-
-    try:
-        activity_id = int(activity_id)
-    except ValueError:
-        flash("Invalid activity ID.", "error")
-        return redirect(url_for("fundraising_activity.list_activities"))
+    activity_id = request.form.get("activityId")
 
     controller = add_favourite_list_controller()
     success, message = controller.addFavourite(account_id, activity_id)
 
-    flash(message, "success" if success else "error")
-
-    return redirect(url_for("fundraising_activity.list_activities"))
+    return jsonify({
+        "success": success,
+        "message": message
+    })
