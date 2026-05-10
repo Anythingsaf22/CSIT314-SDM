@@ -14,6 +14,7 @@ user_account_bp = Blueprint('user_account', __name__)
 @roles_required(USER_ADMIN)
 def list_accounts():
     search_term = request.args.get("search", "")
+    profiles = UserProfile.getAllProfiles()
 
     if "search" in request.args:
         if search_term.strip():
@@ -30,20 +31,16 @@ def list_accounts():
     return render_template(
         "accounts/list_accounts.html",
         accounts = accounts,
-        search_term = search_term
+        search_term = search_term,
+        profiles = profiles
     )
 @user_account_bp.route('/accounts/view')
 @roles_required(USER_ADMIN)
 def view_accounts():
-    controller = view_user_account_controller()
-    accounts = controller.viewUserAccount()
-
-    if not accounts:
-        flash("No accounts found.", "error")
-        return render_template("accounts/view_account.html")
-    return render_template("accounts/view_account.html", accounts = accounts)
+    return redirect(url_for("user_account.list_accounts"))
 
 @user_account_bp.route("/accounts/create", methods=["GET","POST"])
+@roles_required(USER_ADMIN)
 def create_accounts():
     controller = create_user_account_controller()
     profiles = UserProfile.getAllProfiles()
@@ -59,23 +56,23 @@ def create_accounts():
 
         if not full_name:
             flash("Full name is required.", "error")
-            return render_template("accounts/create_account.html", profiles = profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not user_name:
             flash("User name is required.", "error")
-            return render_template("accounts/create_account.html", profiles = profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not password:
             flash("Password is required.", "error")
-            return render_template("accounts/create_account.html", profiles = profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not contact_number:
             flash("Contact number is required.", "error")
-            return render_template("accounts/create_account.html", profiles=profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not profile_id:
             flash("Profile is required.", "error")
-            return render_template("accounts/create_account.html", profiles=profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         success, message = controller.createUserAccount(
             full_name,
@@ -92,8 +89,9 @@ def create_accounts():
             flash(message, "success")
             return redirect(url_for("user_account.list_accounts"))
         flash(message, "error")
+        return redirect(url_for("user_account.list_accounts"))
 
-    return render_template("accounts/create_account.html", profiles = profiles)
+    return redirect(url_for("user_account.list_accounts"))
 
 @user_account_bp.route("/accounts/update", methods=["GET","POST"])
 @roles_required(USER_ADMIN)
@@ -114,31 +112,31 @@ def update_accounts():
 
         if not account_id:
             flash("Account ID is required.", "error")
-            return render_template("accounts/update_account.html", profiles=profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not full_name:
             flash("Full name is required.", "error")
-            return render_template("accounts/update_account.html", profiles=profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not user_name:
             flash("Username is required.", "error")
-            return render_template("accounts/update_account.html", profiles=profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not password:
             flash("Password is required.", "error")
-            return render_template("accounts/update_account.html", profiles=profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not contact_number:
             flash("Contact number is required.", "error")
-            return render_template("accounts/update_account.html", profiles=profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not profile_id:
             flash("Profile is required.", "error")
-            return render_template("accounts/update_account.html", profiles=profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         if not account_status:
             flash("Account status is required.", "error")
-            return render_template("accounts/update_account.html", profiles=profiles)
+            return redirect(url_for("user_account.list_accounts"))
 
         success, message = controller.updateUserAccount(
             int(account_id),
@@ -156,7 +154,8 @@ def update_accounts():
             flash(message, "success")
             return redirect(url_for("user_account.list_accounts"))
         flash(message, "error")
-    return render_template("accounts/update_account.html", profiles=profiles)
+        return redirect(url_for("user_account.list_accounts"))
+    return redirect(url_for("user_account.list_accounts"))
 
 @user_account_bp.route("/accounts/suspend", methods=["GET", "POST"])
 @roles_required(USER_ADMIN)
@@ -177,4 +176,4 @@ def suspend_account():
 
         flash(message, "error")
 
-    return render_template("accounts/suspend_account.html")
+    return redirect(url_for("user_account.list_accounts"))

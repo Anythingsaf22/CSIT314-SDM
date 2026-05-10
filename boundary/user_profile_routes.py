@@ -48,11 +48,11 @@ def create_profile():
 
         if not profile_name:
             flash("Profile name is required.", "error")
-            return render_template("profiles/create_profile.html")
+            return redirect(url_for("user_profile.list_profiles"))
         
         if not profile_description:
             flash("Profile description is required.", "error")
-            return render_template("profiles/create_profile.html")
+            return redirect(url_for("user_profile.list_profiles"))
                 
         success, message = controller.createUserProfile(
             profile_name,
@@ -63,18 +63,14 @@ def create_profile():
             return redirect(url_for("user_profile.list_profiles"))
 
         flash(message, "error")
+        return redirect(url_for("user_profile.list_profiles"))
 
-    return render_template("profiles/create_profile.html")
+    return redirect(url_for("user_profile.list_profiles"))
 
 @user_profile_bp.route("/profiles/view")
 @roles_required(USER_ADMIN)
 def view_profile():
-    controller = view_user_profile_controller()
-    profiles = controller.viewUserProfile()
-    if not profiles:
-        flash("No user profiles found.", "error")
-        return render_template("profiles/view_profile.html")
-    return render_template("profiles/view_profile.html", profiles=profiles)
+    return redirect(url_for("user_profile.list_profiles"))
 
 
 @user_profile_bp.route("/profiles/update", methods=["GET", "POST"])
@@ -89,15 +85,15 @@ def update_profile():
 
         if not profile_id:
             flash("Profile ID is required.", "error")
-            return render_template("profiles/update_profile.html")
+            return redirect(url_for("user_profile.list_profiles"))
         
         if not profile_name:
             flash("Profile name is required.", "error")
-            return render_template("profiles/update_profile.html")
+            return redirect(url_for("user_profile.list_profiles"))
         
         if not profile_description:
             flash("Profile description is required.", "error")
-            return render_template("profiles/update_profile.html")   
+            return redirect(url_for("user_profile.list_profiles"))   
              
         success, message = controller.updateUserProfile(
             profile_id,
@@ -110,8 +106,9 @@ def update_profile():
             return redirect(url_for("user_profile.list_profiles"))
 
         flash(message, "error")
+        return redirect(url_for("user_profile.list_profiles"))
 
-    return render_template("profiles/update_profile.html")
+    return redirect(url_for("user_profile.list_profiles"))
 
 @user_profile_bp.route("/profiles/delete", methods=["GET", "POST"])
 @roles_required(USER_ADMIN)
@@ -135,4 +132,4 @@ def delete_profile():
 
         flash(message, "error")
 
-    return render_template("profiles/delete_profile.html")
+    return redirect(url_for("user_profile.list_profiles"))
