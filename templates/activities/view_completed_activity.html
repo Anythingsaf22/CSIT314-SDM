@@ -31,7 +31,7 @@
         <div>Welcome, {{ session.get('user_name', 'Guest') }} | <a href="{{ url_for('auth.logout') }}">Logout</a></div>
     </div>
     <nav>
-        <a href="{{ url_for('fundraising_activity.list_activities') }}">My Activities</a>
+        <a href="{{ url_for('fundraising_activity.list_activities') }}">Activities</a>
         <a href="{{ url_for('fundraising_activity.view_completed_activities') }}" class="active">Completed</a>
         <a href="{{ url_for('fundraising_activity.view_my_donations') }}">My Donations</a>
     </nav>
