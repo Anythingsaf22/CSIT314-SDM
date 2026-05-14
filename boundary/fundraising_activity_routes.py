@@ -10,7 +10,9 @@ from control.view_my_donation_controller import view_my_donation_controller
 from control.search_my_donation_controller import search_my_donation_controller
 from control.view_fundraising_category_controller import view_fundraising_category_controller
 from control.fundraising_activity_view_record_controller import fundraising_activity_view_record_controller
-from boundary.access_control import login_required, roles_required, FUNDRAISER, PLATFORM_MANAGEMENT
+from control.view_favourite_list_controller import view_favourite_list_controller
+from control.search_favourite_list_controller import search_favourite_list_controller
+from boundary.access_control import login_required, roles_required, DONOR, FUNDRAISER, PLATFORM_MANAGEMENT
 
 
 fundraising_activity_bp = Blueprint("fundraising_activity", __name__)
@@ -23,17 +25,83 @@ def home():
 # LIST + SEARCH
 @fundraising_activity_bp.route("/activities")
 def list_activities():
+    profile_id = session.get("profile_id")
+    account_id = session.get("account_id")
+    active_tab = request.args.get("tab", "browse").strip().lower()
+    if profile_id != DONOR:
+        active_tab = "browse"
+    elif active_tab not in ["browse", "favourites", "history"]:
+        active_tab = "browse"
+
     search_term = request.args.get("search", "")
     search_completed_term = request.args.get("searchCompleted", "")
+    favourites = []
+    donations = []
+    categories = []
+    categoryId = request.args.get("categoryId", "").strip()
+    dateFrom = request.args.get("dateFrom", "").strip()
+    dateTo = request.args.get("dateTo", "").strip()
+    amountMin = request.args.get("amountMin", "").strip()
+    amountMax = request.args.get("amountMax", "").strip()
 
-    if "search" in request.args:
+    if active_tab == "favourites":
+        viewController = view_favourite_list_controller()
+        searchController = search_favourite_list_controller()
+        favourites = viewController.viewFavourites(account_id)
+
+        if "search" in request.args:
+            if search_term.strip():
+                favourites = searchController.searchFavourites(account_id, search_term)
+            else:
+                flash("Activity name or description required.", "error")
+
+        if not favourites:
+            flash("No favourite activities found.", "error")
+
+        activities = []
+
+    elif active_tab == "history":
+        viewController = view_my_donation_controller()
+        searchController = search_my_donation_controller()
+        cateController = view_fundraising_category_controller()
+        categories = cateController.viewFundraisingCategory()
+        has_filter = bool(search_term or categoryId or dateFrom or dateTo or amountMin or amountMax)
+
+        if has_filter:
+            donations = searchController.searchMyDonations(
+                account_id,
+                search_term,
+                categoryId,
+                dateFrom,
+                dateTo,
+                amountMin,
+                amountMax
+            )
+        else:
+            donations = viewController.viewMyDonations(account_id)
+
+        if dateFrom and dateTo and dateFrom > dateTo:
+            flash("Invalid date range.", "error")
+
+        if not donations:
+            flash("No donations found.", "error")
+
+        activities = []
+
+    elif "search" in request.args:
         if search_term.strip():
             searchController = search_fundraising_activity_controller()
-            activities = searchController.searchActivities(search_term)
+            if profile_id == FUNDRAISER:
+                activities = searchController.searchActivitiesByAccountId(account_id, search_term)
+            else:
+                activities = searchController.searchActivities(search_term)
         else:
             flash("Activity name or description required.", "error")
             controller = view_fundraising_activity_controller()
-            activities = controller.viewActivities()
+            if profile_id == FUNDRAISER:
+                activities = controller.viewActivitiesByAccountId(account_id)
+            else:
+                activities = controller.viewActivities()
 
     elif "searchCompleted" in request.args:
         if search_completed_term.strip():
@@ -45,13 +113,25 @@ def list_activities():
             activities = controller.viewCompletedActivities()
     else:
         controller = view_fundraising_activity_controller()
-        activities = controller.viewActivities()
+        if profile_id == FUNDRAISER:
+            activities = controller.viewActivitiesByAccountId(account_id)
+        else:
+            activities = controller.viewActivities()
     
     return render_template(
         "activities/list_activities.html",
         activities=activities,
+        active_tab=active_tab,
+        favourites=favourites,
+        donations=donations,
+        categories=categories,
         search_term=search_term,
-        search_completed_term=search_completed_term
+        search_completed_term=search_completed_term,
+        categoryId=categoryId,
+        dateFrom=dateFrom,
+        dateTo=dateTo,
+        amountMin=amountMin,
+        amountMax=amountMax
     )
 
 # CREATE
@@ -268,6 +348,11 @@ def view_completed_activities():
 @fundraising_activity_bp.route("/activities/myDonations")
 @login_required
 def view_my_donations():
+    if session.get("profile_id") == DONOR:
+        query_args = request.args.to_dict()
+        query_args["tab"] = "history"
+        return redirect(url_for("fundraising_activity.list_activities", **query_args))
+
     account_id = session.get("account_id")
     search_term = request.args.get("search", "").strip()
     categoryId = request.args.get("categoryId", "").strip()

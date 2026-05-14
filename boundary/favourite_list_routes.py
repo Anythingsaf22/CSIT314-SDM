@@ -1,7 +1,5 @@
-from flask import Blueprint, render_template, request, session, flash, redirect, url_for, jsonify
+from flask import Blueprint, request, session, redirect, url_for, jsonify
 from control.add_favourite_list_controller import add_favourite_list_controller
-from control.view_favourite_list_controller import view_favourite_list_controller
-from control.search_favourite_list_controller import search_favourite_list_controller
 from boundary.access_control import login_required, roles_required, DONOR
 
 
@@ -15,30 +13,9 @@ favourite_list_bp = Blueprint("favourites_list", __name__)
 @login_required
 @roles_required(DONOR)
 def view_favourites_list():
-    account_id = session.get("account_id")
-    search_term = request.args.get("search", "").strip()
-    searchController = search_favourite_list_controller()
-    viewController = view_favourite_list_controller()
-
-    favourites = viewController.viewFavourites(account_id)
-
-    if "search" in request.args:
-        if search_term:
-            favourites = searchController.searchFavourites(account_id, search_term)
-        else:
-            flash("Activity name or description required.", "error")
-
-    if not favourites and search_term:
-        flash("No matching favourite activities found.", "error")
-        
-    if not favourites:
-        flash("No favourite activities found.", "error")
-
-    return render_template(
-        "favourites/view_favourites_list.html",
-        favourites=favourites,
-        search_term=search_term
-    )
+    query_args = request.args.to_dict()
+    query_args["tab"] = "favourites"
+    return redirect(url_for("fundraising_activity.list_activities", **query_args))
 
 
 # =========================
@@ -48,26 +25,9 @@ def view_favourites_list():
 @login_required
 @roles_required(DONOR)
 def search_favourites_list():
-    account_id = session.get("account_id")
-    search_term = request.args.get("search", "").strip()
-
-    controller = search_favourite_list_controller()
-    favourites = []
-
-    if "search" in request.args:
-        if search_term:
-            favourites = controller.searchFavourites(account_id, search_term)
-        else:
-            flash("Activity name or description required.", "error")
-
-    if not favourites and search_term:
-        flash("No matching favourite activities found.", "error")
-
-    return render_template(
-        "favourites/search_favourites_list.html",
-        favourites=favourites,
-        search_term=search_term
-    )
+    query_args = request.args.to_dict()
+    query_args["tab"] = "favourites"
+    return redirect(url_for("fundraising_activity.list_activities", **query_args))
 
 
 # =========================

@@ -147,6 +147,44 @@ class FundraisingActivity:
         return [cls.fromRow(row) for row in rows]
 
     @classmethod
+    def getActivitiesByAccountId(cls, accountId: int) -> List["FundraisingActivity"]:
+        """
+        Return fundraising activities owned by one fundraiser account.
+        """
+        connection = get_connection()
+        cursor = connection.execute(
+            """
+            SELECT
+                fra.*,
+                (
+                    SELECT COUNT(*)
+                    FROM favourite_list fl
+                    WHERE fl.activity_id = fra.activity_id
+                ) AS favourite_count,
+                (
+                    SELECT COUNT(*)
+                    FROM activity_view av
+                    WHERE av.activity_id = fra.activity_id
+                ) AS view_count,
+                c.category_name,
+                a.full_name AS fundraiser_name,
+                a.contact_num AS fundraiser_phone
+            FROM fundraising_activity fra
+            JOIN user_account a
+              ON fra.account_id = a.account_id
+            JOIN category c
+              ON fra.category_id = c.category_id
+            WHERE fra.account_id = ?
+            ORDER BY fra.activity_id
+            """,
+            (accountId,)
+        )
+        rows = cursor.fetchall()
+        connection.close()
+
+        return [cls.fromRow(row) for row in rows]
+
+    @classmethod
     def getActivityById(cls, activityId: int) -> Optional["FundraisingActivity"]:
         """
         Return one fundraising activity by activity ID.
@@ -183,6 +221,51 @@ class FundraisingActivity:
             ORDER BY activity_id
             """,
             (keyword, keyword)
+        )
+
+        rows = cursor.fetchall()
+        connection.close()
+
+        return [cls.fromRow(row) for row in rows]
+
+    @classmethod
+    def searchActivitiesByAccountId(cls, accountId: int, searchTerm: str) -> List["FundraisingActivity"]:
+        """
+        Search fundraising activities owned by one fundraiser account.
+        """
+        connection = get_connection()
+        keyword = f"%{searchTerm.strip()}%"
+
+        cursor = connection.execute(
+            """
+            SELECT
+                fra.*,
+                (
+                    SELECT COUNT(*)
+                    FROM favourite_list fl
+                    WHERE fl.activity_id = fra.activity_id
+                ) AS favourite_count,
+                (
+                    SELECT COUNT(*)
+                    FROM activity_view av
+                    WHERE av.activity_id = fra.activity_id
+                ) AS view_count,
+                c.category_name,
+                a.full_name AS fundraiser_name,
+                a.contact_num AS fundraiser_phone
+            FROM fundraising_activity fra
+            JOIN user_account a
+              ON fra.account_id = a.account_id
+            JOIN category c
+              ON fra.category_id = c.category_id
+            WHERE fra.account_id = ?
+              AND (
+                  LOWER(fra.activity_name) LIKE LOWER(?)
+                  OR LOWER(fra.activity_desc) LIKE LOWER(?)
+              )
+            ORDER BY fra.activity_id
+            """,
+            (accountId, keyword, keyword)
         )
 
         rows = cursor.fetchall()

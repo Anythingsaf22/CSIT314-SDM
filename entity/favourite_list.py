@@ -15,6 +15,13 @@ class FavouriteList:
     categoryId: int
     fundingCurrent: float
     fundingGoal: float
+    startDate: str
+    endDate: str
+    viewCount: int = 0
+    favouriteCount: int = 0
+    categoryName: str = ""
+    fundraiserName: str = ""
+    phoneNumber: str = ""
 
     @classmethod
     def fromRow(cls, row):
@@ -27,7 +34,14 @@ class FavouriteList:
             activityStatus=row["activity_status"],
             categoryId=row["category_id"],
             fundingCurrent=row["funding_current"],
-            fundingGoal=row["funding_goal"]
+            fundingGoal=row["funding_goal"],
+            startDate=row["start_date"],
+            endDate=row["end_date"],
+            viewCount=row["view_count"],
+            favouriteCount=row["favourite_count"],
+            categoryName=row["category_name"],
+            fundraiserName=row["fundraiser_name"],
+            phoneNumber=row["fundraiser_phone"]
         )
 
     # ADD
@@ -64,10 +78,28 @@ class FavouriteList:
             """
             SELECT f.*, a.activity_name, a.activity_desc,
                    a.activity_status, a.category_id,
-                   a.funding_current, a.funding_goal
+                   a.funding_current, a.funding_goal,
+                   a.start_date, a.end_date,
+                   c.category_name,
+                   ua.full_name AS fundraiser_name,
+                   ua.contact_num AS fundraiser_phone,
+                   (
+                       SELECT COUNT(*)
+                       FROM activity_view av
+                       WHERE av.activity_id = a.activity_id
+                   ) AS view_count,
+                   (
+                       SELECT COUNT(*)
+                       FROM favourite_list fl
+                       WHERE fl.activity_id = a.activity_id
+                   ) AS favourite_count
             FROM favourite_list f
             JOIN fundraising_activity a
               ON f.activity_id = a.activity_id
+            JOIN category c
+              ON a.category_id = c.category_id
+            JOIN user_account ua
+              ON a.account_id = ua.account_id
             WHERE f.account_id = ?
             ORDER BY f.favourite_id
             """,
@@ -89,10 +121,28 @@ class FavouriteList:
             """
             SELECT f.*, a.activity_name, a.activity_desc,
                    a.activity_status, a.category_id,
-                   a.funding_current, a.funding_goal
+                   a.funding_current, a.funding_goal,
+                   a.start_date, a.end_date,
+                   c.category_name,
+                   ua.full_name AS fundraiser_name,
+                   ua.contact_num AS fundraiser_phone,
+                   (
+                       SELECT COUNT(*)
+                       FROM activity_view av
+                       WHERE av.activity_id = a.activity_id
+                   ) AS view_count,
+                   (
+                       SELECT COUNT(*)
+                       FROM favourite_list fl
+                       WHERE fl.activity_id = a.activity_id
+                   ) AS favourite_count
             FROM favourite_list f
             JOIN fundraising_activity a
               ON f.activity_id = a.activity_id
+            JOIN category c
+              ON a.category_id = c.category_id
+            JOIN user_account ua
+              ON a.account_id = ua.account_id
             WHERE f.account_id = ?
               AND (LOWER(a.activity_name) LIKE LOWER(?)
                    OR LOWER(a.activity_desc) LIKE LOWER(?))

@@ -12,6 +12,12 @@ class view_fundraising_activity_controller:
         """
         return FundraisingActivity.getAllActivities()
 
+    def viewActivitiesByAccountId(self, account_id: int) -> List["FundraisingActivity"]:
+        """
+        Retrieve fundraising activities owned by one account.
+        """
+        return FundraisingActivity.getActivitiesByAccountId(account_id)
+
     def viewActivityById(self, activity_id: int) -> Optional["FundraisingActivity"]:
         """
         Retrieve one Fundraising Activity object by activity ID.

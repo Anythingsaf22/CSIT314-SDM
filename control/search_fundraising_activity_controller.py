@@ -8,3 +8,6 @@ class search_fundraising_activity_controller:
     """
     def searchActivities(self, searchTerm: str) -> Optional["FundraisingActivity"]:
         return FundraisingActivity.searchActivities(searchTerm)
+
+    def searchActivitiesByAccountId(self, accountId: int, searchTerm: str) -> Optional["FundraisingActivity"]:
+        return FundraisingActivity.searchActivitiesByAccountId(accountId, searchTerm)
