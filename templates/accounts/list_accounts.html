@@ -14,7 +14,8 @@
         .search-row form { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: bold; }
         .search-row input { width: 220px; height: 28px; border: 1px solid #777; border-radius: 3px; padding: 0 8px; }
         .search-btn { background: #000; color: white; border: none; border-radius: 4px; height: 32px; width: 90px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
-        .table-box { width: 100%; border: 1px solid #777; border-radius: 4px; overflow: hidden; padding-bottom: 20px; }
+        .table-actions { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 8px; }
+        .table-box { width: 100%; border: 1px solid #777; border-radius: 4px; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         thead { background: #d9d9d9; }
         th { text-align: left; padding: 12px; border-bottom: 1px solid #000; }
@@ -27,7 +28,7 @@
         .status-deactivated { color: red; font-weight: bold; }
         .status-expired { color: #8a5a00; font-weight: bold; }
         .action-btn { background: #000; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-weight: bold; cursor: pointer; margin-right: 4px; text-decoration: none; display: inline-block; }
-        .add-btn { margin: 20px 0 0 10px; background: #2b2b2b; color: white; border: none; border-radius: 6px; padding: 10px 14px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        .add-btn { background: #2b2b2b; color: white; border: none; border-radius: 6px; padding: 10px 14px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
         .empty-row { text-align: center; color: #666; }
         .suspend-toggle { width: 42px; height: 22px; border: none; border-radius: 22px; padding: 3px; position: relative; cursor: pointer; background: #111; vertical-align: middle; }
         .suspend-toggle::before { content: ""; position: absolute; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: white; transition: left 0.2s ease; }
@@ -86,6 +87,10 @@
                 <button class="search-btn" type="submit">SEARCH</button>
                 <a class="search-btn" href="{{ url_for('user_account.list_accounts') }}">CLEAR</a>
             </form>
+        </div>
+
+        <div class="table-actions">
+            <button class="add-btn" type="button" onclick="openCreateAccountModal()">+ Add New User Account</button>
         </div>
 
         <div class="table-box">
@@ -179,7 +184,6 @@
                     {% endif %}
                 </tbody>
             </table>
-            <button class="add-btn" type="button" onclick="openCreateAccountModal()">+ Add New User Account</button>
         </div>
     </div>
 

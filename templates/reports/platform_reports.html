@@ -30,7 +30,6 @@
         .message { padding: 12px; margin-bottom: 16px; border-radius: 4px; font-weight: bold; border: 1px solid #777; }
         .message.success { background: #e6f4ea; color: #2e7d32; border-color: #2e7d32; }
         .message.error { background: #fdecea; color: #c62828; border-color: #c62828; }
-        .report-note { margin-top: 20px; color: #444; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -120,9 +119,6 @@
                         <li>4. Total Completed Activities: <span>{{ report.totalCompletedActivities }}</span></li>
                         <li>5. Most Active Category: <span>{{ report.mostActiveCategory or "N/A" }}</span></li>
                     </ul>
-                    <p class="report-note">
-                        Login count is used here because the current schema does not store account creation timestamps historically.
-                    </p>
                 </div>
             {% endif %}
         </div>

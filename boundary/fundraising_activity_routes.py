@@ -297,7 +297,10 @@ def delete_activity():
 
 # VIEW COMPLETED ACTIVITIES
 @fundraising_activity_bp.route("/activities/viewCompleted")
+@roles_required(FUNDRAISER, PLATFORM_MANAGEMENT)
 def view_completed_activities():
+    profile_id = session.get("profile_id")
+    account_id = session.get("account_id")
     search_term = request.args.get("search", "").strip()
     categoryId = request.args.get("categoryId", "").strip()
     dateFrom = request.args.get("dateFrom", "").strip()
@@ -309,15 +312,26 @@ def view_completed_activities():
     has_filter = bool(search_term or categoryId or dateFrom or dateTo)
 
     if has_filter:
-        activities = search_controller.searchCompletedActivities(
-            search_term,
-            categoryId,
-            dateFrom,
-            dateTo
-        )
+        if profile_id == FUNDRAISER:
+            activities = search_controller.searchCompletedActivitiesByAccountId(
+                account_id,
+                search_term,
+                categoryId,
+                dateFrom,
+                dateTo
+            )
+        else:
+            activities = search_controller.searchCompletedActivities(
+                search_term,
+                categoryId,
+                dateFrom,
+                dateTo
+            )
     else:
-
-        activities = view_controller.viewCompletedActivities()
+        if profile_id == FUNDRAISER:
+            activities = view_controller.viewCompletedActivitiesByAccountId(account_id)
+        else:
+            activities = view_controller.viewCompletedActivities()
 
     if dateFrom and dateTo and dateFrom > dateTo:
         flash("Invalid date range.", "error")

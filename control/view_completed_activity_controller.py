@@ -11,3 +11,9 @@ class view_completed_activity_controller:
         Retrieve all Fundraising Activity object.
         """
         return FundraisingActivity.viewCompletedActivities()
+
+    def viewCompletedActivitiesByAccountId(self, accountId: int) -> List["FundraisingActivity"]:
+        """
+        Retrieve completed fundraising activities owned by one account.
+        """
+        return FundraisingActivity.viewCompletedActivities(accountId)

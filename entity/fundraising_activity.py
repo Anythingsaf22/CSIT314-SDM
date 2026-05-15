@@ -358,48 +358,72 @@ class FundraisingActivity:
         
 
     @classmethod
-    def searchCompletedActivities(cls, keyword: str = "", categoryId: str = "", dateFrom: str = "", dateTo: str = "") -> List["FundraisingActivity"]:
+    def searchCompletedActivities(cls, keyword: str = "", categoryId: str = "", dateFrom: str = "", dateTo: str = "", accountId: Optional[int] = None) -> List["FundraisingActivity"]:
 
         connection = get_connection()
 
         query = """
-            SELECT *
-            FROM fundraising_activity
-            WHERE activity_status = 'completed'
+            SELECT
+                fra.*,
+                (
+                    SELECT COUNT(*)
+                    FROM favourite_list fl
+                    WHERE fl.activity_id = fra.activity_id
+                ) AS favourite_count,
+                (
+                    SELECT COUNT(*)
+                    FROM activity_view av
+                    WHERE av.activity_id = fra.activity_id
+                ) AS view_count,
+                c.category_name,
+                ua.full_name AS fundraiser_name,
+                ua.contact_num AS fundraiser_phone
+            FROM fundraising_activity fra
+            JOIN category c
+              ON fra.category_id = c.category_id
+            JOIN user_account ua
+              ON fra.account_id = ua.account_id
+            WHERE fra.activity_status = 'completed'
         """
 
         params = []
+
+        if accountId is not None:
+            query += """
+                AND fra.account_id = ?
+            """
+            params.append(accountId)
 
         if keyword.strip():
             searchKeyword = f"%{keyword.strip()}%"
             query += """
                 AND (
-                    LOWER(activity_name) LIKE LOWER(?)
-                    OR LOWER(activity_desc) LIKE LOWER(?)
+                    LOWER(fra.activity_name) LIKE LOWER(?)
+                    OR LOWER(fra.activity_desc) LIKE LOWER(?)
                 )
             """
             params.extend([searchKeyword, searchKeyword])
 
         if categoryId:
             query += """
-                AND category_id = ?
+                AND fra.category_id = ?
             """
             params.append(categoryId)
 
         if dateFrom:
             query += """
-                AND end_date >= ?
+                AND fra.end_date >= ?
             """
             params.append(dateFrom)
 
         if dateTo:
             query += """
-                AND end_date <= ?
+                AND fra.end_date <= ?
             """
             params.append(dateTo)
 
         query += """
-            ORDER BY end_date DESC
+            ORDER BY fra.end_date DESC
         """
 
         cursor = connection.execute(query, tuple(params))
@@ -409,19 +433,47 @@ class FundraisingActivity:
         return [cls.fromRow(row) for row in rows]
     
     @classmethod
-    def viewCompletedActivities(cls) -> List["FundraisingActivity"]:
+    def viewCompletedActivities(cls, accountId: Optional[int] = None) -> List["FundraisingActivity"]:
         """
         View all completed activities without search filter
         """
         connection = get_connection()
-        cursor = connection.execute(
-            """
-            SELECT fra.*, c.category_name FROM fundraising_activity fra
-            JOIN category c ON fra.category_id = c.category_id
+        query = """
+            SELECT
+                fra.*,
+                (
+                    SELECT COUNT(*)
+                    FROM favourite_list fl
+                    WHERE fl.activity_id = fra.activity_id
+                ) AS favourite_count,
+                (
+                    SELECT COUNT(*)
+                    FROM activity_view av
+                    WHERE av.activity_id = fra.activity_id
+                ) AS view_count,
+                c.category_name,
+                ua.full_name AS fundraiser_name,
+                ua.contact_num AS fundraiser_phone
+            FROM fundraising_activity fra
+            JOIN category c
+              ON fra.category_id = c.category_id
+            JOIN user_account ua
+              ON fra.account_id = ua.account_id
             WHERE fra.activity_status = 'completed'
-            ORDER BY fra.activity_id
             """
-        )
+        params = []
+
+        if accountId is not None:
+            query += """
+                AND fra.account_id = ?
+            """
+            params.append(accountId)
+
+        query += """
+            ORDER BY fra.activity_id
+        """
+
+        cursor = connection.execute(query, tuple(params))
 
         rows = cursor.fetchall()
         connection.close()
