@@ -3,7 +3,6 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 from boundary.access_control import (
     DONOR,
     FUNDRAISER,
-    MASTER_TESTER,
     PLATFORM_MANAGEMENT,
     USER_ADMIN,
 )
@@ -26,7 +25,6 @@ def get_dashboard_endpoint(profile_id):
         FUNDRAISER: "fundraising_activity.list_activities",
         DONOR: "fundraising_activity.list_activities",
         PLATFORM_MANAGEMENT: "fundraising_category.main_page",
-        MASTER_TESTER: "user_account.list_accounts",
     }
     return dashboard_endpoints.get(profile_id, "auth.login")
 

@@ -210,7 +210,7 @@
             <a class="tab" href="{{ url_for('user_account.list_accounts') }}">Accounts</a>
             <a class="tab" href="{{ url_for('fundraising_category.main_page') }}">Categories</a>
             <a class="tab" href="{{ url_for('fundraising_activity.list_activities') }}">Activities</a>
-            {% if session.get("profile_id") in [4, 5] %}
+            {% if session.get("profile_id") == 4 %}
             <a class="tab" href="{{ url_for('platform_report.view_reports') }}">Reports</a>
             {% endif %}
             {% if session.get("account_id") %}
@@ -285,7 +285,7 @@
                     <a class="open-button" href="{{ url_for('fundraising_activity.list_activities') }}">Open Module</a>
                 </div>
 
-                {% if session.get("profile_id") in [4, 5] %}
+                {% if session.get("profile_id") == 4 %}
                 <div class="module-row">
                     <div>
                         <p class="module-name">Platform Reports</p>
