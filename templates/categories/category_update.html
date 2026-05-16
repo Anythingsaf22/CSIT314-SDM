@@ -48,12 +48,24 @@
         <form method="post" onsubmit="return confirm('Are you sure you want to update this category?');">
             <div class="form-group">
                 <label for="categoryId">Category ID:</label>
-                <input type="text" id="categoryId" name="categoryId" required>
+                <input
+                    type="text"
+                    id="categoryId"
+                    name="categoryId"
+                    value="{{ category.categoryId if category else '' }}"
+                    required
+                >
             </div>
 
             <div class="form-group">
                 <label for="categoryName">Category Name:</label>
-                <input type="text" id="categoryName" name="categoryName" required>
+                <input
+                    type="text"
+                    id="categoryName"
+                    name="categoryName"
+                    value="{{ category.categoryName if category else '' }}"
+                    required
+                >
             </div>
 
             <hr>

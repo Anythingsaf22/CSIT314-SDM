@@ -65,6 +65,19 @@ def view_category():
 @roles_required(PLATFORM_MANAGEMENT)
 def update_category():
     controller = update_fundraising_category_controller()
+    view_controller = view_fundraising_category_controller()
+    category = None
+
+    selected_category_id = request.args.get("categoryId", "").strip()
+    if selected_category_id:
+        try:
+            category = view_controller.viewCategoryById(int(selected_category_id))
+        except ValueError:
+            flash("Invalid category ID.", "error")
+            return render_template("categories/category_update.html", category=category)
+
+        if not category:
+            flash("Category ID does not exist.", "error")
 
     if request.method == "POST":
         category_id = request.form.get("categoryId", "").strip()
@@ -72,11 +85,11 @@ def update_category():
 
         if not category_id:
             flash("Category ID is required.", "error")
-            return render_template("categories/category_update.html")
+            return render_template("categories/category_update.html", category=category)
         
         if not category_name:
             flash("Category name is required.", "error")
-            return render_template("categories/category_update.html")
+            return render_template("categories/category_update.html", category=category)
         
         success, message = controller.updateFundraisingCategory(
             category_id, 
@@ -89,7 +102,7 @@ def update_category():
 
         flash(message, "error")
 
-    return render_template("categories/category_update.html")
+    return render_template("categories/category_update.html", category=category)
 
 @fundraising_category_bp.route("/categories/delete", methods=["GET", "POST"])
 @roles_required(PLATFORM_MANAGEMENT)

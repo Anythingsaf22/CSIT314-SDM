@@ -83,7 +83,7 @@
                             <td>{{ category.categoryName }}</td>
                             <td>
                                 <div class="actions">
-                                    <a href="{{ url_for('fundraising_category.update_category') }}" class="btn-black">Update</a>
+                                    <a href="{{ url_for('fundraising_category.update_category', categoryId=category.categoryId) }}" class="btn-black">Update</a>
                                     <button
                                         class="btn-black"
                                         type="button"

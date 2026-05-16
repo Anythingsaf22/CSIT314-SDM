@@ -82,6 +82,28 @@ class FundraisingCategory:
         connection.close()
 
         return [cls.fromRow(row) for row in rows]
+
+    @classmethod
+    def getCategoryById(cls, categoryId: int) -> Optional["FundraisingCategory"]:
+        """
+        Retrieve one fundraising category by category ID.
+        """
+        connection = get_connection()
+        cursor = connection.execute(
+            """
+            SELECT category_id, category_name
+            FROM category
+            WHERE category_id = ?
+            """,
+            (categoryId,)
+        )
+        row = cursor.fetchone()
+        connection.close()
+
+        if not row:
+            return None
+
+        return cls.fromRow(row)
     
     @classmethod
     def searchCategories(cls, searchTerm: str) -> List["FundraisingCategory"]:
